@@ -10,7 +10,11 @@ Candidates.print_info()
 for i in range(3):
     Candidates.add_one()
 
-Candidates.can_dict[str(2)].change_ut(position=3, change=-0.2)
+
+Candidates.can_dict[str(3)].change_ut(position=3, change=-0.2)
+Candidates.voters_preferences()
+
+
 
 Candidates.print_info()
 

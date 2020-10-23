@@ -40,7 +40,7 @@ class Candidate():
 
     # change utility distribution of a candidate
     def change_ut(self, position, change):
-        self.utility[position] += change
+        self.utility[position - 1] += change
         self.check_minmax_ut()
         self.update_average_ut()
         self.create_hist()
@@ -103,12 +103,16 @@ class Candidates_store():
                                           average_utility=self.average_utility,
                                           name=str(self.number_of_candidates + 1))
         self.number_of_candidates += 1
-
         self.voters_preferences()
 
     def voters_preferences(self):
         for i in range(1, self.number_of_voters + 1):
             self.voters[i] = {"Utility": [], "Ranking": []}
+            for ii in self.can_dict:
+                self.voters[i]["Utility"].append(self.can_dict[ii].utility[i-1])
+
+
+
 
 
 
