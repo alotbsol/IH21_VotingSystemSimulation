@@ -2,10 +2,11 @@
 from math import ceil
 
 class Candidate():
-    def __init__(self, voters, max_utility, average_utility, hist_bins=10):
+    def __init__(self, voters, max_utility, average_utility, name, hist_bins=10,):
         self.voters = voters
         self.max_utility = max_utility
         self.average_utility = average_utility
+        self.name = name
         self.hist_bins = hist_bins
 
         self.utility = []
@@ -14,7 +15,6 @@ class Candidate():
 
         self.flat_distribution()
         self.create_hist()
-        print("done")
 
     # create flat utility distribution for all voters
     def flat_distribution(self):
@@ -43,6 +43,7 @@ class Candidate():
         self.utility[position] += change
         self.check_minmax_ut()
         self.update_average_ut()
+        self.create_hist()
 
     # check and adjust utility so it stays between 0 and 1
     def check_minmax_ut(self):
@@ -64,29 +65,57 @@ class Candidate():
         self.current_average_utility = sum(self.utility)/self.voters
 
     def print_info(self):
+        print("Candidate" + str(self.name))
         print("utility list:")
         print(self.utility)
         print("histogram:")
         print(self.hist)
         print("current average utility:")
         print(self.current_average_utility)
+        print("")
 
 
 class Candidates_store():
     def __init__(self, number_of_candidates, number_of_voters, max_utility, average_utility):
         self.can_dict = {}
-        self.candidates = number_of_candidates
-        self.voters = number_of_voters
+        self.number_of_candidates = number_of_candidates
+        self.number_of_voters = number_of_voters
         self.max_utility = max_utility
         self.average_utility = average_utility
 
+        self.voters = {}
+
+
+        self.create()
+
     def create(self):
-        for i in range(1, self.candidates + 1):
-            self.can_dict[str(i)] = Candidate
+        for i in range(1, self.number_of_candidates + 1):
+            self.can_dict[str(i)] = Candidate(voters=self.number_of_voters,
+                                              max_utility=self.max_utility,
+                                              average_utility=self.average_utility,
+                                              name=str(i))
+
+        self.voters_preferences()
 
     def add_one(self):
-        pass
+        self.can_dict[str(self.number_of_candidates + 1)] = Candidate(voters=self.number_of_voters,
+                                          max_utility=self.max_utility,
+                                          average_utility=self.average_utility,
+                                          name=str(self.number_of_candidates + 1))
+        self.number_of_candidates += 1
 
+        self.voters_preferences()
+
+    def voters_preferences(self):
+        for i in range(1, self.number_of_voters + 1):
+            self.voters[i] = {"Utility": [], "Ranking": []}
+
+
+
+
+    def print_info(self):
+        print(self.can_dict)
+        print(self.voters)
 
 
 
