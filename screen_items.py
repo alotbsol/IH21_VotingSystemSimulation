@@ -39,3 +39,4 @@ class EnterField(object):
 
         InputFieldLabel = Label(self.framevar, text=self.inputtext + ": " + str(self.var))
         InputFieldLabel.grid(row=self.inputrow - 1, column=self.inputcolumn, sticky=W)
+

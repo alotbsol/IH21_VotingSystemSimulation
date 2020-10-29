@@ -1,8 +1,8 @@
 # imports
-from can import Candidates_store
+from can import CandidatesStore
 
 
-Candidates = Candidates_store(number_of_candidates=3, number_of_voters=10, max_utility=1, average_utility=0.5)
+Candidates = CandidatesStore(number_of_candidates=3, number_of_voters=10, max_utility=1, average_utility=0.5)
 
 Candidates.print_info()
 Candidates.add_one()
