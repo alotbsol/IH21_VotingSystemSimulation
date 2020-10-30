@@ -101,10 +101,15 @@ class CandidatesStore:
         self.number_of_voters = number_of_voters
         self.max_utility = max_utility
         self.average_utility = average_utility
+
+
         self.distribution = distribution
 
         self.voters = {}
         self.candidate_rankings = {}
+
+        self.temp_results = {}
+
         self.create()
 
     def create(self):
@@ -154,6 +159,7 @@ class CandidatesStore:
         print(self.candidate_rankings)
 
     def results_one_round(self):
-        methods.x_votes(input_rankings=self.candidate_rankings, number_of_votes=1)
-        methods.x_votes(input_rankings=self.candidate_rankings, number_of_votes=2)
-        methods.x_votes(input_rankings=self.candidate_rankings, number_of_votes=3)
+        self.temp_results = {}
+        self.temp_results["1Vote"] = methods.x_votes(input_rankings=self.candidate_rankings, number_of_votes=1)
+        self.temp_results["2Vote"] = methods.x_votes(input_rankings=self.candidate_rankings, number_of_votes=2)
+        self.temp_results["3Vote"] = methods.x_votes(input_rankings=self.candidate_rankings, number_of_votes=3)
