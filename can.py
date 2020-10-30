@@ -95,12 +95,13 @@ class Candidate:
 
 
 class CandidatesStore:
-    def __init__(self, number_of_candidates, number_of_voters, max_utility, average_utility):
+    def __init__(self, number_of_candidates, number_of_voters, max_utility, average_utility, distribution="random"):
         self.can_dict = {}
         self.number_of_candidates = number_of_candidates
         self.number_of_voters = number_of_voters
         self.max_utility = max_utility
         self.average_utility = average_utility
+        self.distribution = distribution
 
         self.voters = {}
         self.candidate_rankings = {}
@@ -111,7 +112,8 @@ class CandidatesStore:
             self.can_dict[str(i)] = Candidate(voters=self.number_of_voters,
                                               max_utility=self.max_utility,
                                               average_utility=self.average_utility,
-                                              name=str(i))
+                                              name=str(i),
+                                              distribution=self.distribution)
         self.voters_preferences()
 
     def add_one(self):
@@ -119,7 +121,8 @@ class CandidatesStore:
         self.can_dict[str(self.number_of_candidates + 1)] = Candidate(voters=self.number_of_voters,
                                                                       max_utility=self.max_utility,
                                                                       average_utility=self.average_utility,
-                                                                      name=str(self.number_of_candidates + 1))
+                                                                      name=str(self.number_of_candidates + 1),
+                                                                      distribution=self.distribution)
         self.number_of_candidates += 1
         self.voters_preferences()
 

@@ -6,25 +6,24 @@ from screen_items import EnterField
 
 from can import CandidatesStore
 
-Master_List = ["",]
+Master_dict = {"can_store": "", "storage": "",}
 
 
 def generate_environment(number_of_candidates, number_of_voters):
-    Master_List[0] = CandidatesStore(number_of_candidates=number_of_candidates, number_of_voters=number_of_voters,
-                                 max_utility=1, average_utility=0.5)
-    Master_List[0].print_info()
+    Master_dict["can_store"] = CandidatesStore(number_of_candidates=number_of_candidates,
+                                               number_of_voters=number_of_voters, max_utility=1,
+                                               average_utility=0.5, distribution="random")
+    Master_dict["can_store"].print_info()
 
 
 def add_one():
-    Master_List[0].add_one()
-    Master_List[0].print_info()
+    Master_dict["can_store"].add_one()
+    Master_dict["can_store"].print_info()
 
 
 def do_results():
-    Master_List[0].print_info()
-    Master_List[0].results_one_round()
-
-
+    Master_dict["can_store"].print_info()
+    Master_dict["can_store"].results_one_round()
 
 
 def create_buttons():
@@ -39,7 +38,6 @@ def create_buttons():
 
     B3 = General_Button(framevar=root, inputrow=5, inputcolumn=1, inputtext="results",
                         function=lambda: do_results())
-
 
 
 if __name__ == '__main__':
