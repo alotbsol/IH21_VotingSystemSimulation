@@ -13,15 +13,8 @@ class Storage:
             self.winners_rounds[i] = []
 
         self.statistics = {}
-        print("storage created")
 
     def one_round(self, data_in):
-        print("showing data")
-        print(self.winners_rounds)
-
-        print("storing data")
-        print(data_in)
-
         for i in data_in:
             self.winners_rounds[i].append(data_in[i])
 

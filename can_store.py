@@ -15,8 +15,8 @@ class CandidatesStore:
         self.alpha = alpha
         self.beta = beta
 
-        self.voters = {}
-        self.candidate_rankings = {}
+        self.voters = {"Utility": {}, "Ranking": {}}
+        self.candidates = {"Utility": {}, "Ranking": {}}
 
         self.temp_results = {}
 
@@ -32,7 +32,6 @@ class CandidatesStore:
         self.voters_preferences()
 
     def add_one(self):
-        print(self.number_of_candidates)
         self.can_dict[str(self.number_of_candidates + 1)] = Candidate(voters=self.number_of_voters,
                                                                       max_utility=self.max_utility,
                                                                       average_utility=self.average_utility,
@@ -43,33 +42,41 @@ class CandidatesStore:
 
     def voters_preferences(self):
         for i in range(1, self.number_of_voters + 1):
-            self.voters[i] = {"Utility": [], "Ranking": []}
-            for ii in self.can_dict:
-                self.voters[i]["Utility"].append(self.can_dict[ii].utility[i - 1])
+            self.voters["Utility"][i] = []
+            self.voters["Ranking"][i] = []
 
-            rankings = sorted(range(len(self.voters[i]["Utility"])), key=lambda k: self.voters[i]["Utility"][k])
+            for ii in self.can_dict:
+                self.voters["Utility"][i].append(self.can_dict[ii].utility[i - 1])
+
+            rankings = sorted(range(len(self.voters["Utility"][i])), key=lambda k: self.voters["Utility"][i][k])
             rankings.reverse()
             rankings = [x + 1 for x in rankings]
             for ii in rankings:
-                self.voters[i]["Ranking"].append(ii)
+                self.voters["Ranking"][i].append(ii)
 
         for i in range(1, self.number_of_candidates + 1):
-            self.candidate_rankings[i] = []
+            self.candidates["Ranking"][i] = []
             for ii in range(self.number_of_candidates):
-                self.candidate_rankings[i].append(0)
+                self.candidates["Ranking"][i].append(0)
 
             for ii in range(1, self.number_of_voters + 1):
-                index_of_candidate = self.voters[ii]["Ranking"].index(i)
-                self.candidate_rankings[i][index_of_candidate] += 1
+                index_of_candidate = self.voters["Ranking"][ii].index(i)
+                self.candidates["Ranking"][i][index_of_candidate] += 1
+
+            self.candidates["Utility"][i] = []
+            for ii in self.can_dict[str(i)].utility:
+                self.candidates["Utility"][i].append(ii)
 
 
     def print_info(self):
         print(self.can_dict)
         print(self.voters)
-        print(self.candidate_rankings)
+        print(self.candidates)
 
     def results_one_round(self):
         self.temp_results = {}
-        self.temp_results["1Vote"] = methods.x_votes(input_rankings=self.candidate_rankings, number_of_votes=1)
-        self.temp_results["2Vote"] = methods.x_votes(input_rankings=self.candidate_rankings, number_of_votes=2)
-        self.temp_results["3Vote"] = methods.x_votes(input_rankings=self.candidate_rankings, number_of_votes=3)
+        self.temp_results["1Vote"] = methods.x_votes(input_rankings=self.candidates["Ranking"], number_of_votes=1)
+        self.temp_results["2Vote"] = methods.x_votes(input_rankings=self.candidates["Ranking"], number_of_votes=2)
+        self.temp_results["3Vote"] = methods.x_votes(input_rankings=self.candidates["Ranking"], number_of_votes=3)
+        self.temp_results["Max_U"] = methods.max_utility(input_utility=self.candidates["Utility"])
+

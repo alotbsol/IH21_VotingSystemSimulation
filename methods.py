@@ -14,6 +14,22 @@ def x_votes(input_rankings, number_of_votes):
     return winner
 
 
+def max_utility(input_utility):
+    finding_max = []
+    for i in input_utility:
+        finding_max.append(input_utility[i])
+
+    max_utility_value = max(finding_max)
+    winner = [iii for iii, j in enumerate(finding_max) if j == max_utility_value]
+    winner = [x + 1 for x in winner]
+
+    print("Max U winner is:", winner)
+    return winner
+
+
+
+
+
 
 
 

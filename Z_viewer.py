@@ -1,8 +1,8 @@
 #Imports
 from tkinter import *
 
-from screen_items import General_Button
-from screen_items import EnterField
+from Z_screen_items import General_Button
+from Z_screen_items import EnterField
 
 from storage import Storage
 from can_store import CandidatesStore
