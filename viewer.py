@@ -3,9 +3,10 @@ from tkinter import *
 
 from screen_items import General_Button
 from screen_items import EnterField
-from storage import Storage
 
-from can import CandidatesStore
+from storage import Storage
+from can_store import CandidatesStore
+
 
 Master_dict = {"can_store": "", "storage": "",}
 
@@ -16,7 +17,7 @@ Master_dict["storage"] = Storage(methods_list=methods_list)
 def generate_environment(number_of_candidates, number_of_voters):
     Master_dict["can_store"] = CandidatesStore(number_of_candidates=number_of_candidates,
                                                number_of_voters=number_of_voters, max_utility=1,
-                                               average_utility=0.5, distribution="random")
+                                               average_utility=0.5, distribution="R")
     Master_dict["can_store"].print_info()
 
 def add_one():
