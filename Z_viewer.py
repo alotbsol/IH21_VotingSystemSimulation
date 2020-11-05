@@ -10,14 +10,14 @@ from can_store import CandidatesStore
 
 Master_dict = {"can_store": "", "storage": "",}
 
-methods_list = ["1Vote", "2Vote", "3Vote", "Max_U", "Min_U", "Condorcet"]
+methods_list = ["1Vote", "2Vote", "3Vote", "Max_U", "Min_U", "Condorcet", "Condorcet_loser"]
 Master_dict["storage"] = Storage(methods_list=methods_list)
 
 
 def generate_environment(number_of_candidates, number_of_voters):
     Master_dict["can_store"] = CandidatesStore(number_of_candidates=number_of_candidates,
                                                number_of_voters=number_of_voters, max_utility=1,
-                                               average_utility=0.5, distribution="R")
+                                               average_utility=0.5, distribution="B", alpha=1, beta=1)
     Master_dict["can_store"].print_info()
 
 def add_one():

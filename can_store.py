@@ -3,7 +3,7 @@ from can import Candidate
 
 class CandidatesStore:
     def __init__(self, number_of_candidates, number_of_voters, max_utility, average_utility=0.5,
-                 distribution="R", alpha=0, beta=0):
+                 distribution="R", alpha=1, beta=1):
 
         self.can_dict = {}
         self.number_of_candidates = number_of_candidates
@@ -28,7 +28,9 @@ class CandidatesStore:
                                               max_utility=self.max_utility,
                                               average_utility=self.average_utility,
                                               name=str(i),
-                                              distribution=self.distribution)
+                                              distribution=self.distribution,
+                                              alpha=self.alpha,
+                                              beta=self.beta)
         self.voters_preferences()
 
     def add_one(self):
@@ -36,7 +38,10 @@ class CandidatesStore:
                                                                       max_utility=self.max_utility,
                                                                       average_utility=self.average_utility,
                                                                       name=str(self.number_of_candidates + 1),
-                                                                      distribution=self.distribution)
+                                                                      distribution=self.distribution,
+                                                                      alpha=self.alpha,
+                                                                      beta=self.beta
+                                                                      )
         self.number_of_candidates += 1
         self.voters_preferences()
 
@@ -82,6 +87,12 @@ class CandidatesStore:
         self.temp_results["Min_U"] = methods.min_utility(input_utility=self.candidates["Utility"])
         self.temp_results["Condorcet"] = methods.condorcet_calculation(input_utility=self.voters["Utility"],
                                                                        number_of_candidates=self.number_of_candidates,
-                                                                       number_of_voters=self.number_of_voters)
+                                                                       number_of_voters=self.number_of_voters,
+                                                                       con_winner=1, con_loser=0)
+
+        self.temp_results["Condorcet_loser"] = methods.condorcet_calculation(input_utility=self.voters["Utility"],
+                                                                             number_of_candidates=self.number_of_candidates,
+                                                                             number_of_voters=self.number_of_voters,
+                                                                             con_winner=0, con_loser=1)
 
 

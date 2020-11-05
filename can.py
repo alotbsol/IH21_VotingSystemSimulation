@@ -1,15 +1,18 @@
 # imports
 from math import ceil
 from random import random
+import numpy as np
 
 
 class Candidate:
-    def __init__(self, voters, max_utility, average_utility, name, hist_bins=10, distribution="R"):
+    def __init__(self, voters, max_utility, average_utility, name, hist_bins=10, distribution="R", alpha=1, beta=1):
         self.voters = voters
         self.max_utility = max_utility
         self.average_utility = average_utility
         self.name = name
         self.hist_bins = hist_bins
+        self.alpha = alpha
+        self.beta = beta
 
         self.utility = []
         self.hist = []
@@ -17,10 +20,12 @@ class Candidate:
 
         if distribution == "R":
             self.random_distribution()
+        elif distribution == "B":
+            self.beta_distribution()
         elif distribution == "flat":
             self.flat_distribution()
         else:
-            self.beta_distribution()
+            pass
 
         self.create_hist()
 
@@ -36,8 +41,11 @@ class Candidate:
         for i in range(0, self.voters):
             self.utility.append(random())
 
-    def beta_distribution(self):
-        pass
+    def beta_distribution(self,):
+        self.utility = []
+        x = np.random.beta(self.alpha, self.beta, int(self.voters))
+        for i in list(x):
+            self.utility.append(i)
 
     # creates histogram from utility distribution
     def create_hist(self):

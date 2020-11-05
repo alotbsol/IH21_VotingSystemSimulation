@@ -42,7 +42,7 @@ def min_utility(input_utility):
     return loser
 
 
-def condorcet_calculation(input_utility, number_of_candidates, number_of_voters):
+def condorcet_calculation(input_utility, number_of_candidates, number_of_voters, con_winner=1, con_loser=0):
     candidates_list = []
     candidates_pairs_creation = []
     condorcet_calc = []
@@ -81,9 +81,9 @@ def condorcet_calculation(input_utility, number_of_candidates, number_of_voters)
         a = condorcet_calc[position_a]
         b = condorcet_calc[position_b]
         if a > b:
-            results_condorcet_all.append(1)
+            results_condorcet_all.append(con_winner)
         elif b > a:
-            results_condorcet_all.append(0)
+            results_condorcet_all.append(con_loser)
         else:
             results_condorcet_all.append(0)
 
@@ -114,7 +114,7 @@ def condorcet_calculation(input_utility, number_of_candidates, number_of_voters)
         if a == b:
             winner[0] = i
 
-    print("Condorcet Winner is:", winner)
+    print("Condorcet", con_winner, winner)
     return winner
 
 
