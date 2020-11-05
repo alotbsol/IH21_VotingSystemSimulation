@@ -79,4 +79,9 @@ class CandidatesStore:
         self.temp_results["2Vote"] = methods.x_votes(input_rankings=self.candidates["Ranking"], number_of_votes=2)
         self.temp_results["3Vote"] = methods.x_votes(input_rankings=self.candidates["Ranking"], number_of_votes=3)
         self.temp_results["Max_U"] = methods.max_utility(input_utility=self.candidates["Utility"])
+        self.temp_results["Min_U"] = methods.min_utility(input_utility=self.candidates["Utility"])
+        self.temp_results["Condorcet"] = methods.condorcet_calculation(input_utility=self.voters["Utility"],
+                                                                       number_of_candidates=self.number_of_candidates,
+                                                                       number_of_voters=self.number_of_voters)
+
 

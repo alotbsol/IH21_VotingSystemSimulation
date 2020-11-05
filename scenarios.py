@@ -2,29 +2,41 @@
 from storage import Storage
 from can_store import CandidatesStore
 
-def scenario1():
-    global Master_dict
-    global methods_list
+from datetime import datetime
+from joblib import Parallel, delayed
+from multiprocessing import cpu_count
 
-    Master_dict = {"can_store": [0], "storage": "", }
 
-    methods_list = ["1Vote", "2Vote", "3Vote", "Max_U"]
-    Master_dict["storage"] = Storage(methods_list=methods_list)
+methods_list = ["1Vote", "2Vote", "3Vote", "Max_U", "Min_U", "Condorcet"]
+Master_storage = Storage(methods_list=methods_list)
 
-    itterations = 10
 
-    for i in range(itterations):
-        Master_dict["can_store"][0] = CandidatesStore(number_of_candidates=3,
+def scenario1(iterations):
+    master_dict = {"can_store": [0]}
+
+    for i in range(iterations):
+        master_dict["can_store"][0] = CandidatesStore(number_of_candidates=3,
                                                    number_of_voters=10, max_utility=1,
                                                    distribution="R")
 
-        Master_dict["can_store"][0].results_one_round()
-        Master_dict["storage"].one_round(data_in=Master_dict["can_store"][0].temp_results)
+        master_dict["can_store"][0].results_one_round()
+
+        Master_storage.one_round(data_in=master_dict["can_store"][0].temp_results)
 
 
 if __name__ == '__main__':
-    print("calculation start")
+    print("calculation starts")
+    start_time = datetime.now()
 
-    scenario1()
+    """
+    scenario1(iterations=1000)
+    """
 
+    cpu_count = cpu_count()
+    Parallel(n_jobs=cpu_count)(delayed(scenario1)(iterations=100) for i in range(8))
+
+
+    end_time = datetime.now()
     print("calculation ends")
+    print("START:", start_time)
+    print("END:", end_time)
