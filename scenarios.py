@@ -7,7 +7,7 @@ from joblib import Parallel, delayed
 from multiprocessing import cpu_count
 
 
-methods_list = ["1Vote", "2Vote", "3Vote", "Max_U", "Min_U", "Condorcet", "Condorcet_loser"]
+methods_list = ["1Vote", "2Vote", "3Vote", "Borda", "Max_U", "Min_U", "Condorcet", "Condorcet_loser"]
 Master_storage = Storage(methods_list=methods_list)
 
 
@@ -33,7 +33,7 @@ if __name__ == '__main__':
     """
 
     cpu_count = cpu_count()
-    Parallel(n_jobs=cpu_count)(delayed(scenario1)(iterations=100) for i in range(8))
+    Parallel(n_jobs=cpu_count)(delayed(scenario1)(iterations=8) for i in range(100))
 
 
     end_time = datetime.now()

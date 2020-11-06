@@ -1,3 +1,6 @@
+import random
 
-for i in range(10):
-    print(i)
+first_round_winners = [1, 2, 3]
+
+
+print(random.sample(first_round_winners, 2))

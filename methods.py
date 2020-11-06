@@ -1,4 +1,5 @@
 import itertools
+import random
 
 
 # calculate results based on various voting methods
@@ -41,6 +42,93 @@ def min_utility(input_utility):
     print("Min U candidate is:", loser)
     return loser
 
+
+def borda(input_rankings, number_of_candidates):
+    borda_results = []
+    for i in range(1, number_of_candidates + 1):
+        points_for_candidate_total = 0
+        for ii in range(1, number_of_candidates + 1):
+            points_for_candidate = input_rankings[i][ii-1]
+            points_for_candidate_total = points_for_candidate_total + points_for_candidate*(number_of_candidates-ii)
+        borda_results.append(points_for_candidate_total)
+
+    winner = max(borda_results)
+    winner = [ii for ii, j in enumerate(borda_results) if j == winner]
+    winner = [x+1 for x in winner]
+
+    print("Borda winner is:", winner)
+    return winner
+
+
+def run_off(input_rankings, number_of_candidates):
+    first_round_winners = []
+    rankings_copy = []
+
+    for i in range(1, number_of_candidates + 1):
+        rankings_copy.append(input_rankings[i][0])
+
+    for i in range(len(rankings_copy)):
+        if rankings_copy[i] == max(rankings_copy):
+            first_round_winners.append(i + 1)
+        else:
+            pass
+
+    if len(first_round_winners) == 2:
+        pass
+    elif len(first_round_winners) > 2:
+        print("IT HAPENNED")
+        print(first_round_winners)
+        first_round_winners = random.sample(first_round_winners, 2)
+        print(first_round_winners)
+
+    elif len(first_round_winners) < 2:
+        local_copy = list(rankings_copy)
+        for i in range(len(local_copy)):
+            if local_copy[i] == max(rankings_copy):
+                local_copy[i] = 0
+            else:
+                pass
+
+        second_winner = []
+        for i in range(len(local_copy)):
+            if local_copy[i] == max(local_copy):
+                second_winner.append(i + 1)
+            else:
+                pass
+
+        winner = random.sample(second_winner, 1)
+        FirstRoundWinners.append(SecondWinner[winner[0]])
+    else:
+        pass
+
+    first = 0
+    second = 0
+    for i in range(1, 1 + settings.voters_number):
+        firstInRound = 0
+        secondInRound = 0
+        for ii in range(0, settings.candidate_number):
+            if settings.VoterRankingStorage["VoterR{0}".format(i)][ii] == FirstRoundWinners[0]:
+                firstInRound = int(ii)
+            elif settings.VoterRankingStorage["VoterR{0}".format(i)][ii] == FirstRoundWinners[1]:
+                secondInRound = int(ii)
+            else:
+                pass
+
+        if firstInRound < secondInRound:
+            first += 1
+        elif firstInRound > secondInRound:
+            second += 1
+        else:
+            pass
+
+    if first > second:
+        findingrunoffwinner = [FirstRoundWinners[0]]
+    elif first < second:
+        findingrunoffwinner = [FirstRoundWinners[1]]
+    elif first == second:
+        findingrunoffwinner = FirstRoundWinners[0:2]
+
+    settings.Winners["RunOff"] = findingrunoffwinner.copy()
 
 def condorcet_calculation(input_utility, number_of_candidates, number_of_voters, con_winner=1, con_loser=0):
     candidates_list = []

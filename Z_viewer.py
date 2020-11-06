@@ -10,7 +10,7 @@ from can_store import CandidatesStore
 
 Master_dict = {"can_store": "", "storage": "",}
 
-methods_list = ["1Vote", "2Vote", "3Vote", "Max_U", "Min_U", "Condorcet", "Condorcet_loser"]
+methods_list = ["1Vote", "2Vote", "3Vote", "Borda", "Max_U", "Min_U", "Condorcet", "Condorcet_loser"]
 Master_dict["storage"] = Storage(methods_list=methods_list)
 
 
