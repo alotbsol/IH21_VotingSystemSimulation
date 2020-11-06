@@ -1,5 +1,7 @@
 import itertools
 import random
+from math import ceil
+from statistics import median_low
 
 
 # calculate results based on various voting methods
@@ -20,7 +22,7 @@ def x_votes(input_rankings, number_of_votes):
 def max_utility(input_utility):
     finding_max = []
     for i in input_utility:
-        finding_max.append(input_utility[i])
+        finding_max.append(sum(input_utility[i]))
 
     max_utility_value = max(finding_max)
     winner = [iii for iii, j in enumerate(finding_max) if j == max_utility_value]
@@ -33,7 +35,7 @@ def max_utility(input_utility):
 def min_utility(input_utility):
     finding_min = []
     for i in input_utility:
-        finding_min.append(input_utility[i])
+        finding_min.append(sum(input_utility[i]))
 
     min_utility_value = min(finding_min)
     loser = [iii for iii, j in enumerate(finding_min) if j == min_utility_value]
@@ -129,6 +131,64 @@ def run_off(input_rankings, input_voters_rankings, number_of_candidates, number_
         winner = first_round_winners[0:2]
 
     print("Run off winner is:", winner)
+    return winner
+
+
+def range_voting(input_utility, scale, number_of_candidates):
+    range_results = []
+    for i in range(1, number_of_candidates + 1):
+        temp_copy = input_utility[i].copy()
+        temp_copy = [ceil(k * scale) for k in temp_copy]
+        range_results.append(sum(temp_copy))
+
+    winner = [i for i, n in enumerate(range_results) if n == max(range_results)]
+    winner = [x + 1 for x in winner]
+
+    print("Range", scale, "winner is", winner)
+    return winner
+
+
+def majority_judgement(input_utility, scale, number_of_candidates):
+    winner = []
+    losers = set()
+    median_score = 0
+    end_it = 0
+
+    utility_copy = input_utility.copy()
+    for i in range(1, number_of_candidates + 1):
+        utility_copy[i] = [ceil(k * scale) for k in utility_copy[i]]
+
+    while len(winner) != 1:
+        maj_results = []
+        for i in range(1, number_of_candidates + 1):
+            try:
+                utility_copy[i].remove(median_score)
+            except:
+                pass
+
+            try:
+                maj_results.append(median_low(utility_copy[i]))
+            except:
+                end_it = 1
+
+        if end_it == 1:
+            break
+        else:
+            median_score = (max(maj_results))
+            winner = [i for i, n in enumerate(maj_results) if n == median_score]
+            losers_temp = [i for i, n in enumerate(maj_results) if n != median_score]
+
+            winner = [x + 1 for x in winner]
+            losers_temp = [x + 1 for x in losers_temp]
+
+            for w in losers_temp:
+                losers.add(w)
+
+            for w in losers:
+                for ww in range(len(utility_copy[w])):
+                    utility_copy[w][ww] = 0
+
+    print("Maj judge", scale, "winner is", winner)
     return winner
 
 
