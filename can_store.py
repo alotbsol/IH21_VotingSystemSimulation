@@ -94,6 +94,11 @@ class CandidatesStore:
         self.temp_results["Borda"] = methods.borda(input_rankings=self.candidates["Ranking"],
                                                    number_of_candidates=self.number_of_candidates)
 
+        self.temp_results["Run off"] = methods.run_off(input_rankings=self.candidates["Ranking"],
+                                                     input_voters_rankings=self.voters["Ranking"],
+                                                     number_of_candidates=self.number_of_candidates,
+                                                     number_of_voters=self.number_of_voters)
+
         self.temp_results["Condorcet"] = methods.condorcet_calculation(input_utility=self.voters["Utility"],
                                                                        number_of_candidates=self.number_of_candidates,
                                                                        number_of_voters=self.number_of_voters,

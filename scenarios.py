@@ -7,7 +7,7 @@ from joblib import Parallel, delayed
 from multiprocessing import cpu_count
 
 
-methods_list = ["1Vote", "2Vote", "3Vote", "Borda", "Max_U", "Min_U", "Condorcet", "Condorcet_loser"]
+methods_list = ["1Vote", "2Vote", "3Vote", "Run off", "Borda", "Max_U", "Min_U", "Condorcet", "Condorcet_loser"]
 Master_storage = Storage(methods_list=methods_list)
 
 

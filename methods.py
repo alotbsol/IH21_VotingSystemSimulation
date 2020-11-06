@@ -60,10 +60,11 @@ def borda(input_rankings, number_of_candidates):
     return winner
 
 
-def run_off(input_rankings, number_of_candidates):
+def run_off(input_rankings, input_voters_rankings, number_of_candidates, number_of_voters):
     first_round_winners = []
     rankings_copy = []
 
+    # first round
     for i in range(1, number_of_candidates + 1):
         rankings_copy.append(input_rankings[i][0])
 
@@ -76,10 +77,7 @@ def run_off(input_rankings, number_of_candidates):
     if len(first_round_winners) == 2:
         pass
     elif len(first_round_winners) > 2:
-        print("IT HAPENNED")
-        print(first_round_winners)
         first_round_winners = random.sample(first_round_winners, 2)
-        print(first_round_winners)
 
     elif len(first_round_winners) < 2:
         local_copy = list(rankings_copy)
@@ -96,39 +94,43 @@ def run_off(input_rankings, number_of_candidates):
             else:
                 pass
 
-        winner = random.sample(second_winner, 1)
-        FirstRoundWinners.append(SecondWinner[winner[0]])
+        picked = random.sample(second_winner, 1)
+        first_round_winners.append(picked[0])
     else:
         pass
 
+    # second round
     first = 0
     second = 0
-    for i in range(1, 1 + settings.voters_number):
-        firstInRound = 0
-        secondInRound = 0
-        for ii in range(0, settings.candidate_number):
-            if settings.VoterRankingStorage["VoterR{0}".format(i)][ii] == FirstRoundWinners[0]:
-                firstInRound = int(ii)
-            elif settings.VoterRankingStorage["VoterR{0}".format(i)][ii] == FirstRoundWinners[1]:
-                secondInRound = int(ii)
+    for i in range(1, number_of_voters + 1):
+        first_in_round = 0
+        second_in_round = 0
+        for ii in range(number_of_candidates):
+            if input_voters_rankings[i][ii] == first_round_winners[0]:
+                first_in_round = int(ii)
+            elif input_voters_rankings[i][ii] == first_round_winners[1]:
+                second_in_round = int(ii)
             else:
                 pass
 
-        if firstInRound < secondInRound:
+        if first_in_round < second_in_round:
             first += 1
-        elif firstInRound > secondInRound:
+        elif first_in_round > second_in_round:
             second += 1
         else:
             pass
 
+    winner = 0
     if first > second:
-        findingrunoffwinner = [FirstRoundWinners[0]]
+        winner = [first_round_winners[0]]
     elif first < second:
-        findingrunoffwinner = [FirstRoundWinners[1]]
+        winner = [first_round_winners[1]]
     elif first == second:
-        findingrunoffwinner = FirstRoundWinners[0:2]
+        winner = first_round_winners[0:2]
 
-    settings.Winners["RunOff"] = findingrunoffwinner.copy()
+    print("Run off winner is:", winner)
+    return winner
+
 
 def condorcet_calculation(input_utility, number_of_candidates, number_of_voters, con_winner=1, con_loser=0):
     candidates_list = []
