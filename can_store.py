@@ -1,6 +1,7 @@
 import methods
 from can import Candidate
 
+
 class CandidatesStore:
     def __init__(self, number_of_candidates, number_of_voters, max_utility, average_utility=0.5,
                  distribution="R", alpha=1, beta=1):
@@ -15,10 +16,8 @@ class CandidatesStore:
         self.alpha = alpha
         self.beta = beta
 
-        self.voters = {"Utility": {}, "Ranking": {}}
-        self.candidates = {"Utility": {}, "Ranking": {}}
-        self.voters_variable = {"Utility": {}, "Ranking": {}}
-        self.candidates_variable = {"Utility": {}, "Ranking": {}}
+        self.voters = {"Utility": {}, "Ranking": {}, "Variable_Ranking": {}}
+        self.candidates = {"Utility": {}, "Ranking": {}, "Variable_Ranking": {}}
 
         self.temp_results = {}
 
@@ -109,15 +108,15 @@ class CandidatesStore:
             else:
                 pass
 
-            settings.VoterRankingStorageThresh["VoterR{0}".format(i)] = list(RankingCopytwo)
+            self.voters["Variable_Ranking"] = list(utility_copy)
             utility_copy = []
 
         # Results - Candidates number of x votes - above
-        for i in range(1, 1 + settings.candidate_number):
+        for i in range(1, self.number_of_candidates + 1):
             CanRankingCopy = []
-            for ii in range(1, 1 + settings.candidate_number):
+            for ii in range(1, self.number_of_candidates + 1):
                 votecountertwo = 0
-                for iii in range(1, 1 + settings.voters_number):
+                for iii in range(1, self.number_of_voters + 1):
                     votecounter = settings.VoterRankingStorageThresh["VoterR{0}".format(iii)][ii - 1]
                     if i == votecounter:
                         votecountertwo += 1
@@ -130,6 +129,8 @@ class CandidatesStore:
         for j in range(1, 1 + settings.candidate_number):
             settings.CandidateRankingStorageThreshMinus["CandidateR{0}".format(j)][0] += MinusVotes[j - 1]
 
+
+        self.candidates = {"Utility": {}, "Ranking": {}, "Variable_Ranking": {}}
 
     def print_info(self):
         print(self.can_dict)
