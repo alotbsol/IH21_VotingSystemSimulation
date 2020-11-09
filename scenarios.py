@@ -7,10 +7,19 @@ from joblib import Parallel, delayed
 from multiprocessing import cpu_count
 
 
-methods_list = ["1Vote", "2Vote", "3Vote", "Run off", "Borda",
+methods_list = ["Plurality", "Run off", "Borda",
                 "Maj judge 3", "Maj judge 5", "Maj judge 10",
                 "Range 3", "Range 5", "Range 10",
                 "Max_U", "Min_U", "Condorcet", "Condorcet_loser"]
+
+for i in range(1, 12):
+    methods_list.append("{0}Vote_Fix".format(i))
+
+for i in range(1, 12):
+    methods_list.append("{0}Vote_Var".format(i))
+
+for i in range(1, 12):
+    methods_list.append("{0}Vote_Var-".format(i))
 
 Master_storage = Storage(methods_list=methods_list)
 
@@ -33,11 +42,14 @@ if __name__ == '__main__':
     start_time = datetime.now()
 
     """
-    scenario1(iterations=800)
+    for i in range(100):
+        scenario1(iterations=8)
     """
 
+
     cpu_count = cpu_count()
-    Parallel(n_jobs=cpu_count)(delayed(scenario1)(iterations=8) for i in range(100))
+    Parallel(n_jobs=cpu_count)(delayed(scenario1)(iterations=100) for i in range(100))
+
 
     end_time = datetime.now()
     print("calculation ends")

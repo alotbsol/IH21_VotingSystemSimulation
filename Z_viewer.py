@@ -10,10 +10,22 @@ from can_store import CandidatesStore
 
 Master_dict = {"can_store": "", "storage": "",}
 
-methods_list = ["1Vote", "2Vote", "3Vote", "Run off", "Borda",
+""" USED METHODS DEFINITION"""
+methods_list = ["Plurality", "Run off", "Borda",
                 "Maj judge 3", "Maj judge 5", "Maj judge 10",
                 "Range 3", "Range 5", "Range 10",
                 "Max_U", "Min_U", "Condorcet", "Condorcet_loser"]
+
+for i in range(1, 4):
+    methods_list.append("{0}Vote_Fix".format(i))
+
+for i in range(1, 4):
+    methods_list.append("{0}Vote_Var".format(i))
+
+for i in range(1, 4):
+    methods_list.append("{0}Vote_Var-".format(i))
+
+""" END USED METHODS DEFINITION"""
 
 Master_dict["storage"] = Storage(methods_list=methods_list)
 

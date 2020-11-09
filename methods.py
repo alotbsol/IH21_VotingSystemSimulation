@@ -15,7 +15,25 @@ def x_votes(input_rankings, number_of_votes):
     winner = [iii for iii, j in enumerate(votes_storage) if j == winner_votes]
     winner = [x + 1 for x in winner]
 
-    print(number_of_votes, "vote winner is:", winner)
+    return winner
+
+
+def x_votes_minus(input_rankings, input_rankings_minus, number_of_votes):
+    votes_storage = []
+
+    # TOHLE SE MUSI UPRAVIT ABY HLASY BYLY SKUTECNE UDELENY
+    for i in input_rankings:
+        if i > 1:
+            votes_sum = sum(input_rankings_minus[i][0:number_of_votes])
+        else:
+            votes_sum = sum(input_rankings[i][0:number_of_votes])
+
+        votes_storage.append(votes_sum)
+
+    winner_votes = max(votes_storage)
+    winner = [iii for iii, j in enumerate(votes_storage) if j == winner_votes]
+    winner = [x + 1 for x in winner]
+
     return winner
 
 
@@ -28,7 +46,6 @@ def max_utility(input_utility):
     winner = [iii for iii, j in enumerate(finding_max) if j == max_utility_value]
     winner = [x + 1 for x in winner]
 
-    print("Max U winner is:", winner)
     return winner
 
 
@@ -41,7 +58,6 @@ def min_utility(input_utility):
     loser = [iii for iii, j in enumerate(finding_min) if j == min_utility_value]
     loser = [x + 1 for x in loser]
 
-    print("Min U candidate is:", loser)
     return loser
 
 
@@ -58,7 +74,6 @@ def borda(input_rankings, number_of_candidates):
     winner = [ii for ii, j in enumerate(borda_results) if j == winner]
     winner = [x+1 for x in winner]
 
-    print("Borda winner is:", winner)
     return winner
 
 
@@ -130,7 +145,6 @@ def run_off(input_rankings, input_voters_rankings, number_of_candidates, number_
     elif first == second:
         winner = first_round_winners[0:2]
 
-    print("Run off winner is:", winner)
     return winner
 
 
@@ -144,7 +158,6 @@ def range_voting(input_utility, scale, number_of_candidates):
     winner = [i for i, n in enumerate(range_results) if n == max(range_results)]
     winner = [x + 1 for x in winner]
 
-    print("Range", scale, "winner is", winner)
     return winner
 
 
@@ -188,7 +201,6 @@ def majority_judgement(input_utility, scale, number_of_candidates):
                 for ww in range(len(utility_copy[w])):
                     utility_copy[w][ww] = 0
 
-    print("Maj judge", scale, "winner is", winner)
     return winner
 
 
@@ -264,7 +276,6 @@ def condorcet_calculation(input_utility, number_of_candidates, number_of_voters,
         if a == b:
             winner[0] = i
 
-    print("Condorcet", con_winner, winner)
     return winner
 
 

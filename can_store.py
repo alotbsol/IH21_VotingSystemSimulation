@@ -17,7 +17,7 @@ class CandidatesStore:
         self.beta = beta
 
         self.voters = {"Utility": {}, "Ranking": {}, "Variable_Ranking": {}}
-        self.candidates = {"Utility": {}, "Ranking": {}, "Variable_Ranking": {}}
+        self.candidates = {"Utility": {}, "Ranking": {}, "Variable_Ranking": {}, "Variable_Ranking_Minus": {}}
 
         self.temp_results = {}
 
@@ -73,81 +73,90 @@ class CandidatesStore:
             for ii in self.can_dict[str(i)].utility:
                 self.candidates["Utility"][i].append(ii)
 
+        self.voters_preferences_variable()
+
     def voters_preferences_variable(self):
         minus_votes = [0] * self.number_of_candidates
         deleted_votes = []
-        more_than_1vote = 0
+        more_than_2votes = 0
 
         for i in range(1, self.number_of_voters + 1):
-            utility_copy = self.voters["Utility"][i]
+            utility_copy_temp = self.voters["Utility"][i]
             to_be_deleted = 0
-            for ii in range(utility_copy):
+            for ii in range(len(utility_copy_temp)):
                 # THRESHOLD here average utility of specific voter
-                if utility_copy[ii] > sum(utility_copy) / len(utility_copy):
+                if utility_copy_temp[ii] > sum(utility_copy_temp) / len(utility_copy_temp):
                     pass
                 else:
                     to_be_deleted += 1
 
             deleted_votes.append(to_be_deleted)
 
-            if to_be_deleted < self.number_of_candidates - 1:
-                more_than_1vote = 1
+            if 2 < self.number_of_candidates - to_be_deleted:
+                more_than_2votes = 0
             else:
-                more_than_1vote = 0
+                more_than_2votes = 1
 
-            utility_copy = sorted(range(len(utility_copy)), key=lambda k: utility_copy[k])
-            utility_copy.reverse()
-            utility_copy = [x + 1 for x in utility_copy]
+            utility_copy_temp = sorted(range(len(utility_copy_temp)), key=lambda k: utility_copy_temp[k])
+            utility_copy_temp.reverse()
+            utility_copy_temp = [x + 1 for x in utility_copy_temp]
 
             for ii in range(1, to_be_deleted + 1):
-                utility_copy[-ii] = 0
+                utility_copy_temp[-ii] = 0
 
-            if more_than_1vote == 1:
-                where_is_minus = int(utility_copy.index(min(utility_copy)))
+            if more_than_2votes == 1:
+                where_is_minus = int(utility_copy_temp.index(min(utility_copy_temp)))
                 minus_votes[where_is_minus] += -1
             else:
                 pass
 
-            self.voters["Variable_Ranking"] = list(utility_copy)
-            utility_copy = []
+            self.voters["Variable_Ranking"] = list(utility_copy_temp)
+            utility_copy_temp = []
 
         # Results - Candidates number of x votes - above
         for i in range(1, self.number_of_candidates + 1):
-            CanRankingCopy = []
+            can_ranking_temp = []
             for ii in range(1, self.number_of_candidates + 1):
-                votecountertwo = 0
+                vote_counter_two = 0
                 for iii in range(1, self.number_of_voters + 1):
-                    votecounter = settings.VoterRankingStorageThresh["VoterR{0}".format(iii)][ii - 1]
-                    if i == votecounter:
-                        votecountertwo += 1
-                CanRankingCopy.append(votecountertwo)
+                    vote_counter = self.voters["Variable_Ranking"][ii - 1]
+                    if i == vote_counter:
+                        vote_counter_two += 1
+                can_ranking_temp.append(vote_counter_two)
 
-            settings.CandidateRankingStorageThresh["CandidateR{0}".format(i)] = list(CanRankingCopy)
+            self.candidates["Variable_Ranking"][i] = list(can_ranking_temp)
 
-            settings.CandidateRankingStorageThreshMinus["CandidateR{0}".format(i)] = list(CanRankingCopy)
+            self.candidates["Variable_Ranking_Minus"][i] = list(can_ranking_temp)
+        for j in range(1, self.number_of_candidates + 1):
+            self.candidates["Variable_Ranking_Minus"][j][0] += minus_votes[j - 1]
 
-        for j in range(1, 1 + settings.candidate_number):
-            settings.CandidateRankingStorageThreshMinus["CandidateR{0}".format(j)][0] += MinusVotes[j - 1]
-
-
-        self.candidates = {"Utility": {}, "Ranking": {}, "Variable_Ranking": {}}
 
     def print_info(self):
         print(self.can_dict)
         print(self.voters)
         print(self.candidates)
 
-    def results_one_round(self):
+    def results_one_round(self, max_votes=3):
         self.temp_results = {}
 
-        self.temp_results["1Vote"] = methods.x_votes(input_rankings=self.candidates["Ranking"], number_of_votes=1)
+        self.temp_results["Plurality"] = methods.x_votes(input_rankings=self.candidates["Ranking"], number_of_votes=1)
 
-        self.temp_results["2Vote"] = methods.x_votes(input_rankings=self.candidates["Ranking"], number_of_votes=2)
+        for i in range(1, max_votes + 1):
+            self.temp_results["{0}Vote_Fix".format(i)] = methods.x_votes(input_rankings=self.candidates["Ranking"], number_of_votes=i)
 
-        self.temp_results["3Vote"] = methods.x_votes(input_rankings=self.candidates["Ranking"], number_of_votes=3)
+        for i in range(1, max_votes + 1):
+            self.temp_results["{0}Vote_Var".format(i)] = methods.x_votes(input_rankings=self.candidates["Variable_Ranking"], number_of_votes=i)
+
+        for i in range(1, max_votes + 1):
+            self.temp_results["{0}Vote_Var-".format(i)] = methods.x_votes(input_rankings=self.candidates["Variable_Ranking_Minus"], number_of_votes=i)
+        """
+        for i in range(1, max_votes + 1):
+            self.temp_results["{0}Vote_Var-".format(i)] = methods.x_votes_minus(input_rankings=self.candidates["Variable_Ranking"],
+                input_rankings_minus=self.candidates["Variable_Ranking_Minus"],
+                number_of_votes=i)
+        """
 
         self.temp_results["Max_U"] = methods.max_utility(input_utility=self.candidates["Utility"])
-
         self.temp_results["Min_U"] = methods.min_utility(input_utility=self.candidates["Utility"])
 
         self.temp_results["Borda"] = methods.borda(input_rankings=self.candidates["Ranking"],
