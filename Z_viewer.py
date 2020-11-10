@@ -11,19 +11,20 @@ from can_store import CandidatesStore
 Master_dict = {"can_store": "", "storage": "",}
 
 """ USED METHODS DEFINITION"""
-methods_list = ["Plurality", "Run off", "Borda",
+methods_list = ["Plurality", "Run off", "D21+", "D21-", "Approval",
                 "Maj judge 3", "Maj judge 5", "Maj judge 10",
+                "Borda",
                 "Range 3", "Range 5", "Range 10",
-                "Max_U", "Min_U", "Condorcet", "Condorcet_loser"]
+                "Max Utility", "Min Utility",
+                "Condorcet", "Condorcet_loser",
+                "Random"]
 
-for i in range(1, 4):
+for i in range(2, 12):
     methods_list.append("{0}Vote_Fix".format(i))
 
-for i in range(1, 4):
+for i in range(2, 12):
     methods_list.append("{0}Vote_Var".format(i))
 
-for i in range(1, 4):
-    methods_list.append("{0}Vote_Var-".format(i))
 
 """ END USED METHODS DEFINITION"""
 
@@ -34,7 +35,7 @@ def generate_environment(number_of_candidates, number_of_voters):
     Master_dict["can_store"] = CandidatesStore(number_of_candidates=number_of_candidates,
                                                number_of_voters=number_of_voters, max_utility=1,
                                                average_utility=0.5, distribution="B", alpha=1, beta=1)
-    Master_dict["can_store"].print_info()
+    """Master_dict["can_store"].print_info()"""
 
 def add_one():
     Master_dict["can_store"].add_one()

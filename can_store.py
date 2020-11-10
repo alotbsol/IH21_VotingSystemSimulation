@@ -1,5 +1,6 @@
 import methods
 from can import Candidate
+import random
 
 
 class CandidatesStore:
@@ -73,12 +74,13 @@ class CandidatesStore:
             for ii in self.can_dict[str(i)].utility:
                 self.candidates["Utility"][i].append(ii)
 
+        print("rank:", self.candidates["Ranking"])
         self.voters_preferences_variable()
 
     def voters_preferences_variable(self):
+        print("VARIABLE PREFERENCES:")
         minus_votes = [0] * self.number_of_candidates
         deleted_votes = []
-        more_than_2votes = 0
 
         for i in range(1, self.number_of_voters + 1):
             utility_copy_temp = self.voters["Utility"][i]
@@ -91,11 +93,11 @@ class CandidatesStore:
                     to_be_deleted += 1
 
             deleted_votes.append(to_be_deleted)
-
-            if 2 < self.number_of_candidates - to_be_deleted:
-                more_than_2votes = 0
+            if 2 > self.number_of_candidates - to_be_deleted:
+                pass
             else:
-                more_than_2votes = 1
+                where_is_minus = int(utility_copy_temp.index(min(utility_copy_temp)))
+                minus_votes[where_is_minus] += -1
 
             utility_copy_temp = sorted(range(len(utility_copy_temp)), key=lambda k: utility_copy_temp[k])
             utility_copy_temp.reverse()
@@ -104,22 +106,16 @@ class CandidatesStore:
             for ii in range(1, to_be_deleted + 1):
                 utility_copy_temp[-ii] = 0
 
-            if more_than_2votes == 1:
-                where_is_minus = int(utility_copy_temp.index(min(utility_copy_temp)))
-                minus_votes[where_is_minus] += -1
-            else:
-                pass
-
-            self.voters["Variable_Ranking"] = list(utility_copy_temp)
+            self.voters["Variable_Ranking"][i] = list(utility_copy_temp)
             utility_copy_temp = []
 
-        # Results - Candidates number of x votes - above
+        # Transfer variable voters preferences to candidate rankings
         for i in range(1, self.number_of_candidates + 1):
             can_ranking_temp = []
             for ii in range(1, self.number_of_candidates + 1):
                 vote_counter_two = 0
                 for iii in range(1, self.number_of_voters + 1):
-                    vote_counter = self.voters["Variable_Ranking"][ii - 1]
+                    vote_counter = self.voters["Variable_Ranking"][iii][ii - 1]
                     if i == vote_counter:
                         vote_counter_two += 1
                 can_ranking_temp.append(vote_counter_two)
@@ -127,45 +123,32 @@ class CandidatesStore:
             self.candidates["Variable_Ranking"][i] = list(can_ranking_temp)
 
             self.candidates["Variable_Ranking_Minus"][i] = list(can_ranking_temp)
-        for j in range(1, self.number_of_candidates + 1):
-            self.candidates["Variable_Ranking_Minus"][j][0] += minus_votes[j - 1]
-
+        for i in range(1, self.number_of_candidates + 1):
+            self.candidates["Variable_Ranking_Minus"][i][0] += minus_votes[i - 1]
 
     def print_info(self):
         print(self.can_dict)
         print(self.voters)
         print(self.candidates)
 
-    def results_one_round(self, max_votes=3):
+    def results_one_round(self):
         self.temp_results = {}
 
         self.temp_results["Plurality"] = methods.x_votes(input_rankings=self.candidates["Ranking"], number_of_votes=1)
-
-        for i in range(1, max_votes + 1):
-            self.temp_results["{0}Vote_Fix".format(i)] = methods.x_votes(input_rankings=self.candidates["Ranking"], number_of_votes=i)
-
-        for i in range(1, max_votes + 1):
-            self.temp_results["{0}Vote_Var".format(i)] = methods.x_votes(input_rankings=self.candidates["Variable_Ranking"], number_of_votes=i)
-
-        for i in range(1, max_votes + 1):
-            self.temp_results["{0}Vote_Var-".format(i)] = methods.x_votes(input_rankings=self.candidates["Variable_Ranking_Minus"], number_of_votes=i)
-        """
-        for i in range(1, max_votes + 1):
-            self.temp_results["{0}Vote_Var-".format(i)] = methods.x_votes_minus(input_rankings=self.candidates["Variable_Ranking"],
-                input_rankings_minus=self.candidates["Variable_Ranking_Minus"],
-                number_of_votes=i)
-        """
-
-        self.temp_results["Max_U"] = methods.max_utility(input_utility=self.candidates["Utility"])
-        self.temp_results["Min_U"] = methods.min_utility(input_utility=self.candidates["Utility"])
-
-        self.temp_results["Borda"] = methods.borda(input_rankings=self.candidates["Ranking"],
-                                                   number_of_candidates=self.number_of_candidates)
 
         self.temp_results["Run off"] = methods.run_off(input_rankings=self.candidates["Ranking"],
                                                        input_voters_rankings=self.voters["Ranking"],
                                                        number_of_candidates=self.number_of_candidates,
                                                        number_of_voters=self.number_of_voters)
+
+        self.temp_results["D21+"] = methods.x_votes(input_rankings=self.candidates["Variable_Ranking"],
+                                                    number_of_votes=methods.d21_votes(self.number_of_candidates))
+
+        self.temp_results["D21-"] = methods.x_votes(input_rankings=self.candidates["Variable_Ranking_Minus"],
+                                                    number_of_votes=methods.d21_votes(self.number_of_candidates))
+
+        self.temp_results["Approval"] = methods.x_votes(input_rankings=self.candidates["Variable_Ranking"],
+                                                        number_of_votes=self.number_of_candidates)
 
         self.temp_results["Maj judge 3"] = methods.majority_judgement(input_utility=self.candidates["Utility"],
                                                                       scale=3,
@@ -177,6 +160,9 @@ class CandidatesStore:
                                                                        scale=10,
                                                                        number_of_candidates=self.number_of_candidates)
 
+        self.temp_results["Borda"] = methods.borda(input_rankings=self.candidates["Ranking"],
+                                                   number_of_candidates=self.number_of_candidates)
+
         self.temp_results["Range 3"] = methods.range_voting(input_utility=self.candidates["Utility"],
                                                             scale=3,
                                                             number_of_candidates=self.number_of_candidates)
@@ -186,6 +172,10 @@ class CandidatesStore:
         self.temp_results["Range 10"] = methods.range_voting(input_utility=self.candidates["Utility"],
                                                              scale=10,
                                                              number_of_candidates=self.number_of_candidates)
+
+        self.temp_results["Max Utility"] = methods.max_utility(input_utility=self.candidates["Utility"])
+        self.temp_results["Min Utility"] = methods.min_utility(input_utility=self.candidates["Utility"])
+        self.temp_results["Random"] = [random.randint(1, self.number_of_candidates)]
 
         self.temp_results["Condorcet"] = methods.condorcet_calculation(input_utility=self.voters["Utility"],
                                                                        number_of_candidates=self.number_of_candidates,
@@ -197,4 +187,10 @@ class CandidatesStore:
                                                                              number_of_voters=self.number_of_voters,
                                                                              con_winner=0, con_loser=1)
 
+        for i in range(2, self.number_of_candidates):
+            self.temp_results["{0}Vote_Fix".format(i)] = methods.x_votes(input_rankings=self.candidates["Ranking"],
+                                                                         number_of_votes=i)
 
+        for i in range(2, self.number_of_candidates + 1):
+            self.temp_results["{0}Vote_Var".format(i)] = methods.x_votes(input_rankings=self.candidates["Variable_Ranking"],
+                                                                         number_of_votes=i)

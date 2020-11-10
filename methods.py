@@ -1,6 +1,8 @@
 import itertools
 import random
 from math import ceil
+from math import sqrt
+from math import floor
 from statistics import median_low
 
 
@@ -216,7 +218,7 @@ def condorcet_calculation(input_utility, number_of_candidates, number_of_voters,
     for i in range(1, number_of_candidates + 1):
         candidates_list.append(i)
 
-    #creates candidate pairs
+    # creates candidate pairs
     for pairs in itertools.combinations(candidates_list, 2):
         candidates_pairs_creation.append(pairs)
 
@@ -279,11 +281,11 @@ def condorcet_calculation(input_utility, number_of_candidates, number_of_voters,
     return winner
 
 
+def d21_votes(number_of_candidates, winners=1):
+    ideal_votes = round(2*winners - (winners - 2)*0.618)
+    votes_function = int((1/2)*(sqrt((winners - 1) ** 2 + (4 * number_of_candidates)) + winners - 1))
 
-
-
-
-
-
-
-
+    if number_of_candidates == 3:
+        return 2
+    else:
+        return floor(min(ideal_votes, votes_function))
