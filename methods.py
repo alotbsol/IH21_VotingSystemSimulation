@@ -20,23 +20,12 @@ def x_votes(input_rankings, number_of_votes):
     return winner
 
 
-def x_votes_minus(input_rankings, input_rankings_minus, number_of_votes):
-    votes_storage = []
+def d21(input_rankings, input_rankings_minus, number_of_candidates):
 
-    # TOHLE SE MUSI UPRAVIT ABY HLASY BYLY SKUTECNE UDELENY
-    for i in input_rankings:
-        if i > 1:
-            votes_sum = sum(input_rankings_minus[i][0:number_of_votes])
-        else:
-            votes_sum = sum(input_rankings[i][0:number_of_votes])
 
-        votes_storage.append(votes_sum)
 
-    winner_votes = max(votes_storage)
-    winner = [iii for iii, j in enumerate(votes_storage) if j == winner_votes]
-    winner = [x + 1 for x in winner]
 
-    return winner
+    return
 
 
 def max_utility(input_utility):

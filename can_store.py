@@ -122,8 +122,12 @@ class CandidatesStore:
             self.candidates["Variable_Ranking"][i] = list(can_ranking_temp)
 
             self.candidates["Variable_Ranking_Minus"][i] = list(can_ranking_temp)
-        for i in range(1, self.number_of_candidates + 1):
-            self.candidates["Variable_Ranking_Minus"][i][0] += minus_votes[i - 1]
+
+        if self.number_of_candidates > 3:
+            for i in range(1, self.number_of_candidates + 1):
+                self.candidates["Variable_Ranking_Minus"][i][0] += minus_votes[i - 1]
+        else:
+            pass
 
     def set_current_scenario(self):
         self.current_scenario = ""

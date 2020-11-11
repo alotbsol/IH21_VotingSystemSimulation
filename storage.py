@@ -83,9 +83,10 @@ class Storage:
             self.statistics["Condorcet_proportion"].append(fun.condorcet_compare_proportion(comparing=self.data_rounds[i],
                                                                                             comparing_to=self.data_rounds["Condorcet"]))
 
-            self.statistics["Condorcet_within_list"].append("")
+            self.statistics["Condorcet_within_list"].append(fun.condorcet_compare_within_list(comparing=self.data_rounds[i],
+                                                                                            comparing_to=self.data_rounds["Condorcet"]))
 
-            self.statistics["Multiple winners"].append("")
+            self.statistics["Multiple winners"].append(fun.multiple_winners(input_list=self.data_rounds[i]))
 
         # C 1 to x chosen
 
