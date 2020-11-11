@@ -2,30 +2,102 @@ import xlsxwriter
 from datetime import datetime
 import pandas as pd
 
+import fun
+
 
 class Storage:
     def __init__(self, methods_list, name="Project"):
         self.name = name
         self.start_time = datetime.now()
+        self.methods_list = methods_list
 
-        self.winners_rounds = {}
-        for i in methods_list:
-            self.winners_rounds[i] = []
+        self.data_rounds = {}
 
-        self.statistics = {}
+        self.statistics = {"Iterations": [],
+                           "Candidates": [],
+                           "Voters": [],
+                           "PDF": [],
+                           "PDF_type": [],
+                           "Method": [],
+                           "Condorcet": [],
+                           "Condorcet loser": [],
+                           "Max Utility": [],
+                           "Min Utility": [],
+                           "Condorcet_proportion": [],
+                           "Condorcet_within_list": [],
+                           "Multiple winners": [],
+                           }
 
-    def one_round(self, data_in):
+    def set_data_rounds(self):
+        self.data_rounds = {}
+        self.data_rounds["Candidates"] = []
+        self.data_rounds["Voters"] = []
+        self.data_rounds["PDF"] = []
+
+        for i in self.methods_list:
+            self.data_rounds[i] = []
+
+    def create_process(self, process_no=1):
+        self.data_rounds[process_no] = {}
+
+        self.data_rounds[process_no]["Candidates"] = []
+        self.data_rounds[process_no]["Voters"] = []
+        self.data_rounds[process_no]["PDF"] = []
+
+        for i in self.methods_list:
+            self.data_rounds[process_no][i] = []
+
+    def one_round_process(self, data_in, process_no=1):
         for i in data_in:
-            self.winners_rounds[i].append(data_in[i])
+            self.data_rounds[process_no][i].append(data_in[i])
 
-        print("showing data")
-        print(self.winners_rounds)
+    def merge_processes(self):
+        copy_dict = self.data_rounds.copy()
+        self.set_data_rounds()
 
-    def aggregate_results(self):
-        pass
+        for i in copy_dict:
+            for ii in copy_dict[i]:
+                for iii in copy_dict[i][ii]:
+                    self.data_rounds[ii].append(iii)
+
+    def aggregate_results(self, specific_pdf_type="na"):
+        for i in self.methods_list:
+            self.statistics["Iterations"].append(len(self.data_rounds["Candidates"]))
+            self.statistics["Candidates"].append(self.data_rounds["Candidates"][0])
+            self.statistics["Voters"].append(self.data_rounds["Voters"][0])
+            self.statistics["PDF"].append(self.data_rounds["PDF"][0])
+            self.statistics["PDF_type"].append(specific_pdf_type)
+            self.statistics["Method"].append(i)
+
+            self.statistics["Condorcet"].append(fun.condorcet_compare(comparing=self.data_rounds[i],
+                                                                      comparing_to=self.data_rounds["Condorcet"]))
+            self.statistics["Condorcet loser"].append(fun.condorcet_compare(comparing=self.data_rounds[i],
+                                                                            comparing_to=self.data_rounds["Condorcet_loser"]))
+
+            self.statistics["Max Utility"].append(fun.compare(comparing=self.data_rounds[i],
+                                                              comparing_to=self.data_rounds["Max Utility"]))
+
+            self.statistics["Min Utility"].append(fun.compare(comparing=self.data_rounds[i],
+                                                              comparing_to=self.data_rounds["Min Utility"]))
+
+            self.statistics["Condorcet_proportion"].append(fun.condorcet_compare_proportion(comparing=self.data_rounds[i],
+                                                                                            comparing_to=self.data_rounds["Condorcet"]))
+
+            self.statistics["Condorcet_within_list"].append("")
+
+            self.statistics["Multiple winners"].append("")
+
+        # C 1 to x chosen
+
+        self.data_rounds = {}
+        self.set_data_rounds()
 
     def export(self):
         writer = pd.ExcelWriter("{0}.xlsx".format(self.name), engine="xlsxwriter")
+        df_all = pd.DataFrame.from_dict(self.statistics)
+        df_all.to_excel(writer, sheet_name="AllData")
+
+        writer.save()
 
 
 

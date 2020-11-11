@@ -46,7 +46,11 @@ def do_results():
     Master_dict["can_store"].print_info()
     Master_dict["can_store"].results_one_round()
 
-    Master_dict["storage"].one_round(data_in=Master_dict["can_store"].temp_results)
+    Master_dict["storage"].one_round_process(data_in=Master_dict["can_store"].temp_results)
+
+def export_results():
+    Master_dict["storage"].aggregate_results()
+    Master_dict["storage"].export()
 
 
 def create_buttons():
@@ -61,6 +65,8 @@ def create_buttons():
 
     B3 = General_Button(framevar=root, inputrow=5, inputcolumn=1, inputtext="results",
                         function=lambda: do_results())
+    B4 = General_Button(framevar=root, inputrow=7, inputcolumn=1, inputtext="export results",
+                        function=lambda: export_results())
 
 
 if __name__ == '__main__':

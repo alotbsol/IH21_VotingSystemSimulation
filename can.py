@@ -11,6 +11,7 @@ class Candidate:
         self.average_utility = average_utility
         self.name = name
         self.hist_bins = hist_bins
+        self.distribution = distribution
         self.alpha = alpha
         self.beta = beta
 

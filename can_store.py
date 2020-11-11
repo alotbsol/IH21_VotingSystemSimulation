@@ -20,6 +20,7 @@ class CandidatesStore:
         self.voters = {"Utility": {}, "Ranking": {}, "Variable_Ranking": {}}
         self.candidates = {"Utility": {}, "Ranking": {}, "Variable_Ranking": {}, "Variable_Ranking_Minus": {}}
 
+        self.current_scenario = ""
         self.temp_results = {}
 
         self.create()
@@ -74,11 +75,9 @@ class CandidatesStore:
             for ii in self.can_dict[str(i)].utility:
                 self.candidates["Utility"][i].append(ii)
 
-        print("rank:", self.candidates["Ranking"])
         self.voters_preferences_variable()
 
     def voters_preferences_variable(self):
-        print("VARIABLE PREFERENCES:")
         minus_votes = [0] * self.number_of_candidates
         deleted_votes = []
 
@@ -126,6 +125,13 @@ class CandidatesStore:
         for i in range(1, self.number_of_candidates + 1):
             self.candidates["Variable_Ranking_Minus"][i][0] += minus_votes[i - 1]
 
+    def set_current_scenario(self):
+        self.current_scenario = ""
+
+        for i in self.can_dict:
+            self.current_scenario += self.can_dict[i].distribution + "_" + str(self.can_dict[i].alpha) + "_" + \
+                                     str(self.can_dict[i].beta) + "__"
+
     def print_info(self):
         print(self.can_dict)
         print(self.voters)
@@ -133,6 +139,11 @@ class CandidatesStore:
 
     def results_one_round(self):
         self.temp_results = {}
+        self.set_current_scenario()
+
+        self.temp_results["Candidates"] = self.number_of_candidates
+        self.temp_results["Voters"] = self.number_of_voters
+        self.temp_results["PDF"] = self.current_scenario
 
         self.temp_results["Plurality"] = methods.x_votes(input_rankings=self.candidates["Ranking"], number_of_votes=1)
 
