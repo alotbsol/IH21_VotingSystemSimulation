@@ -4,18 +4,24 @@ import random
 
 
 class CandidatesStore:
-    def __init__(self, number_of_candidates, number_of_voters, max_utility, average_utility=0.5,
-                 distribution="R", alpha=1, beta=1):
+    def __init__(self, number_of_voters):
+
+        """
+        (self, number_of_candidates, number_of_voters, max_utility, average_utility=0.5,
+                 distribution="R", alpha=1, beta=1)
+        """
 
         self.can_dict = {}
-        self.number_of_candidates = number_of_candidates
+        self.number_of_candidates = 0
         self.number_of_voters = number_of_voters
+
+        """
         self.max_utility = max_utility
         self.average_utility = average_utility
-
         self.distribution = distribution
         self.alpha = alpha
         self.beta = beta
+        """
 
         self.voters = {"Utility": {}, "Ranking": {}, "Variable_Ranking": {}}
         self.candidates = {"Utility": {}, "Ranking": {}, "Variable_Ranking": {}, "Variable_Ranking_Minus": {}}
@@ -23,8 +29,7 @@ class CandidatesStore:
         self.current_scenario = ""
         self.temp_results = {}
 
-        self.create()
-
+    """
     def create(self):
         for i in range(1, self.number_of_candidates + 1):
             self.can_dict[str(i)] = Candidate(voters=self.number_of_voters,
@@ -35,18 +40,20 @@ class CandidatesStore:
                                               alpha=self.alpha,
                                               beta=self.beta)
         self.voters_preferences()
+    """
 
-    def add_one(self):
+    def add_candidate(self, distribution, alpha, beta):
         self.can_dict[str(self.number_of_candidates + 1)] = Candidate(voters=self.number_of_voters,
-                                                                      max_utility=self.max_utility,
-                                                                      average_utility=self.average_utility,
                                                                       name=str(self.number_of_candidates + 1),
-                                                                      distribution=self.distribution,
-                                                                      alpha=self.alpha,
-                                                                      beta=self.beta
+                                                                      distribution=distribution,
+                                                                      alpha=alpha,
+                                                                      beta=beta
                                                                       )
         self.number_of_candidates += 1
+
+        """
         self.voters_preferences()
+        """
 
     def voters_preferences(self):
         for i in range(1, self.number_of_voters + 1):

@@ -108,3 +108,26 @@ def multiple_winners(input_list):
         pass
 
     return x
+
+
+def how_often_chosen(input_list, unique_value):
+    new_list = []
+    for i in input_list:
+        for ii in range(0, len(i)):
+            new_list.append(i[ii])
+
+    x = 0
+    for i in new_list:
+        if i == unique_value:
+            x += 1
+        else:
+            pass
+
+    try:
+        x = x / len(new_list)
+    except:
+        x = 0
+
+    return x
+
+

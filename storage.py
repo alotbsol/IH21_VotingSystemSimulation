@@ -60,7 +60,7 @@ class Storage:
                 for iii in copy_dict[i][ii]:
                     self.data_rounds[ii].append(iii)
 
-    def aggregate_results(self, specific_pdf_type="na"):
+    def aggregate_results(self, specific_pdf_type="na", max_candidates=11):
         for i in self.methods_list:
             self.statistics["Iterations"].append(len(self.data_rounds["Candidates"]))
             self.statistics["Candidates"].append(self.data_rounds["Candidates"][0])
@@ -84,11 +84,13 @@ class Storage:
                                                                                             comparing_to=self.data_rounds["Condorcet"]))
 
             self.statistics["Condorcet_within_list"].append(fun.condorcet_compare_within_list(comparing=self.data_rounds[i],
-                                                                                            comparing_to=self.data_rounds["Condorcet"]))
+                                                                                              comparing_to=self.data_rounds["Condorcet"]))
 
             self.statistics["Multiple winners"].append(fun.multiple_winners(input_list=self.data_rounds[i]))
 
-        # C 1 to x chosen
+            for ii in range(0, max_candidates + 1):
+                self.statistics.setdefault("C{0}chosen".format(ii), []).append(fun.how_often_chosen(
+                    input_list=self.data_rounds[i], unique_value=ii))
 
         self.data_rounds = {}
         self.set_data_rounds()

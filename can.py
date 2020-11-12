@@ -5,7 +5,7 @@ import numpy as np
 
 
 class Candidate:
-    def __init__(self, voters, max_utility, average_utility, name, hist_bins=10, distribution="R", alpha=1, beta=1):
+    def __init__(self, voters, name, max_utility=1, average_utility=0.5, hist_bins=10, distribution="R", alpha=1, beta=1):
         self.voters = voters
         self.max_utility = max_utility
         self.average_utility = average_utility
@@ -19,16 +19,14 @@ class Candidate:
         self.hist = []
         self.current_average_utility = float(self.average_utility)
 
-        if distribution == "R":
-            self.random_distribution()
-        elif distribution == "B":
+        if distribution == "B":
             self.beta_distribution()
+        elif distribution == "R":
+            self.random_distribution()
         elif distribution == "flat":
             self.flat_distribution()
         else:
             pass
-
-        self.create_hist()
 
     # create flat utility distribution for all voters
     def flat_distribution(self):

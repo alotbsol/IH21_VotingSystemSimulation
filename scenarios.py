@@ -22,39 +22,62 @@ for i in range(2, 12):
 Master_storage = Storage(methods_list=methods_list)
 
 
-def scenario1(iterations, scenario, number_of_candidates, number_of_voters):
-    master_dict = {"can_store": [0]}
+def scenario(number_of_iterations, scenario_no, number_of_candidates, number_of_voters,
+             distributions, alphas, betas):
+    Master_storage.create_process(process_no=scenario_no)
 
-    Master_storage.create_process(process_no=scenario)
+    for rounds in range(number_of_iterations):
+        candidate_store = CandidatesStore(number_of_voters=number_of_voters)
+        for can in range(number_of_candidates):
+            candidate_store.add_candidate(distribution=distributions[can],
+                                          alpha=alphas[can],
+                                          beta=betas[can])
 
-    for i in range(iterations):
-        master_dict["can_store"][0] = CandidatesStore(number_of_candidates=number_of_candidates,
-                                                   number_of_voters=number_of_voters, max_utility=1,
-                                                   distribution="R")
-
-        master_dict["can_store"][0].results_one_round()
-        Master_storage.one_round_process(data_in=master_dict["can_store"][0].temp_results, process_no=scenario)
+        candidate_store.voters_preferences()
+        candidate_store.results_one_round()
+        Master_storage.one_round_process(data_in=candidate_store.temp_results, process_no=scenario_no)
 
 
 if __name__ == '__main__':
     print("calculation starts")
     start_time = datetime.now()
 
+    candidates_scenarios = [3, 4, 5, 6, 7, 8, 9, 10, 11]
+
+    can_1_scenarios = {"a_3_pol": [0.333, 0.333], "b_2_pol": [0.5, 0.5], "c_1_pol": [0.667, 0.667],
+                    "f_ran": [1, 1],
+                    "g_1_med": [1.333, 1.333], "h_2_med": [2, 2], "i_3_med": [3, 3]}
+
     voters_scenarios = [100, 101]
-    candidates_scenarios = [3, 4, 5, 6, 7, 8, 9, 10, 10]
+
+    iterations = 21000
 
     cpu_no = cpu_count()
 
     for i in candidates_scenarios:
-        print("Candidate scen", i)
-        for ii in voters_scenarios:
-            print("Voters scen", ii)
-            Parallel(n_jobs=cpu_no, require='sharedmem')(delayed(scenario1)(iterations=21, scenario=w,
-                                                                            number_of_candidates=i,
-                                                                            number_of_voters=ii) for w in range(100))
+        pdfs = ["B"] * i
+        alpha_parameters = [1] * i
+        beta_parameters = [1] * i
 
-            Master_storage.merge_processes()
-            Master_storage.aggregate_results()
+        for ii in can_1_scenarios:
+            alpha_parameters[0] = can_1_scenarios[ii][0]
+            beta_parameters[0] = can_1_scenarios[ii][1]
+
+            for iii in voters_scenarios:
+                print("Candidate scen", i)
+                print("Pol scen", ii)
+                print("Voters scen", iii)
+                Parallel(n_jobs=cpu_no, require='sharedmem')(delayed(scenario)(
+                    number_of_iterations=round(iterations/cpu_no),
+                    number_of_candidates=i,
+                    number_of_voters=iii,
+                    distributions=pdfs,
+                    alphas=alpha_parameters,
+                    betas=beta_parameters,
+                    scenario_no=w, ) for w in range(cpu_no))
+
+                Master_storage.merge_processes()
+                Master_storage.aggregate_results(specific_pdf_type=ii)
 
     Master_storage.export()
 
