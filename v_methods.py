@@ -1,3 +1,4 @@
+# imports
 import itertools
 import random
 from math import ceil
@@ -18,14 +19,6 @@ def x_votes(input_rankings, number_of_votes):
     winner = [x + 1 for x in winner]
 
     return winner
-
-
-def d21(input_rankings, input_rankings_minus, number_of_candidates):
-
-
-
-
-    return
 
 
 def max_utility(input_utility):

@@ -19,7 +19,7 @@ for i in range(2, 12):
 for i in range(2, 12):
     methods_list.append("{0}Vote_Var".format(i))
 
-Master_storage = Storage(methods_list=methods_list)
+Master_storage = Storage(methods_list=methods_list, name="Scenario_1")
 
 
 def scenario(number_of_iterations, scenario_no, number_of_candidates, number_of_voters,
@@ -50,7 +50,7 @@ if __name__ == '__main__':
 
     voters_scenarios = [100, 101]
 
-    iterations = 21000
+    iterations = 21
 
     cpu_no = cpu_count()
 

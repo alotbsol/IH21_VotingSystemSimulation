@@ -1,46 +1,80 @@
-import methods
-from can import Candidate
-import random
+# imports
+import numpy as np
+from math import ceil
+from random import random
+from random import randint
+
+import v_methods
+
+
+class Candidate:
+    def __init__(self, voters, name, hist_bins=10, distribution="R", alpha=1, beta=1):
+        self.voters = voters
+        self.name = name
+        self.hist_bins = hist_bins
+        self.distribution = distribution
+        self.alpha = alpha
+        self.beta = beta
+
+        self.utility = []
+        self.hist = []
+
+        if distribution == "B":
+            self.beta_distribution()
+        elif distribution == "R":
+            self.random_distribution()
+        elif distribution == "flat":
+            self.flat_distribution()
+        else:
+            pass
+
+    # create flat utility distribution for all voters
+    def flat_distribution(self):
+        self.utility = []
+        for i in range(0, self.voters):
+            self.utility.append(self.average_utility)
+
+    # create random utility distribution for all voters
+    def random_distribution(self):
+        self.utility = []
+        for i in range(0, self.voters):
+            self.utility.append(random())
+
+    def beta_distribution(self,):
+        self.utility = []
+        x = np.random.beta(self.alpha, self.beta, int(self.voters))
+        for i in list(x):
+            self.utility.append(i)
+
+    # creates histogram from utility distribution
+    def create_hist(self):
+        one_step = self.max_utility / self.hist_bins
+        limits = []
+        self.hist = [0] * self.hist_bins
+
+        previous_value = 0
+        for i in range(0, self.hist_bins):
+            limits.append(round(one_step + previous_value, 3))
+            previous_value += one_step
+
+        for i in self.utility:
+            x = ceil(i * 10) / 10
+            index_hist = limits.index(x)
+
+            self.hist[index_hist] += 1
 
 
 class CandidatesStore:
     def __init__(self, number_of_voters):
-
-        """
-        (self, number_of_candidates, number_of_voters, max_utility, average_utility=0.5,
-                 distribution="R", alpha=1, beta=1)
-        """
-
         self.can_dict = {}
         self.number_of_candidates = 0
         self.number_of_voters = number_of_voters
-
-        """
-        self.max_utility = max_utility
-        self.average_utility = average_utility
-        self.distribution = distribution
-        self.alpha = alpha
-        self.beta = beta
-        """
 
         self.voters = {"Utility": {}, "Ranking": {}, "Variable_Ranking": {}}
         self.candidates = {"Utility": {}, "Ranking": {}, "Variable_Ranking": {}, "Variable_Ranking_Minus": {}}
 
         self.current_scenario = ""
         self.temp_results = {}
-
-    """
-    def create(self):
-        for i in range(1, self.number_of_candidates + 1):
-            self.can_dict[str(i)] = Candidate(voters=self.number_of_voters,
-                                              max_utility=self.max_utility,
-                                              average_utility=self.average_utility,
-                                              name=str(i),
-                                              distribution=self.distribution,
-                                              alpha=self.alpha,
-                                              beta=self.beta)
-        self.voters_preferences()
-    """
 
     def add_candidate(self, distribution, alpha, beta):
         self.can_dict[str(self.number_of_candidates + 1)] = Candidate(voters=self.number_of_voters,
@@ -50,10 +84,6 @@ class CandidatesStore:
                                                                       beta=beta
                                                                       )
         self.number_of_candidates += 1
-
-        """
-        self.voters_preferences()
-        """
 
     def voters_preferences(self):
         for i in range(1, self.number_of_voters + 1):
@@ -143,11 +173,6 @@ class CandidatesStore:
             self.current_scenario += self.can_dict[i].distribution + "_" + str(self.can_dict[i].alpha) + "_" + \
                                      str(self.can_dict[i].beta) + "__"
 
-    def print_info(self):
-        print(self.can_dict)
-        print(self.voters)
-        print(self.candidates)
-
     def results_one_round(self):
         self.temp_results = {}
         self.set_current_scenario()
@@ -156,63 +181,63 @@ class CandidatesStore:
         self.temp_results["Voters"] = self.number_of_voters
         self.temp_results["PDF"] = self.current_scenario
 
-        self.temp_results["Plurality"] = methods.x_votes(input_rankings=self.candidates["Ranking"], number_of_votes=1)
+        self.temp_results["Plurality"] = v_methods.x_votes(input_rankings=self.candidates["Ranking"], number_of_votes=1)
 
-        self.temp_results["Run off"] = methods.run_off(input_rankings=self.candidates["Ranking"],
-                                                       input_voters_rankings=self.voters["Ranking"],
-                                                       number_of_candidates=self.number_of_candidates,
-                                                       number_of_voters=self.number_of_voters)
+        self.temp_results["Run off"] = v_methods.run_off(input_rankings=self.candidates["Ranking"],
+                                                         input_voters_rankings=self.voters["Ranking"],
+                                                         number_of_candidates=self.number_of_candidates,
+                                                         number_of_voters=self.number_of_voters)
 
-        self.temp_results["D21+"] = methods.x_votes(input_rankings=self.candidates["Variable_Ranking"],
-                                                    number_of_votes=methods.d21_votes(self.number_of_candidates))
+        self.temp_results["D21+"] = v_methods.x_votes(input_rankings=self.candidates["Variable_Ranking"],
+                                                      number_of_votes=v_methods.d21_votes(self.number_of_candidates))
 
-        self.temp_results["D21-"] = methods.x_votes(input_rankings=self.candidates["Variable_Ranking_Minus"],
-                                                    number_of_votes=methods.d21_votes(self.number_of_candidates))
+        self.temp_results["D21-"] = v_methods.x_votes(input_rankings=self.candidates["Variable_Ranking_Minus"],
+                                                      number_of_votes=v_methods.d21_votes(self.number_of_candidates))
 
-        self.temp_results["Approval"] = methods.x_votes(input_rankings=self.candidates["Variable_Ranking"],
-                                                        number_of_votes=self.number_of_candidates)
+        self.temp_results["Approval"] = v_methods.x_votes(input_rankings=self.candidates["Variable_Ranking"],
+                                                          number_of_votes=self.number_of_candidates)
 
-        self.temp_results["Maj judge 3"] = methods.majority_judgement(input_utility=self.candidates["Utility"],
-                                                                      scale=3,
-                                                                      number_of_candidates=self.number_of_candidates)
-        self.temp_results["Maj judge 5"] = methods.majority_judgement(input_utility=self.candidates["Utility"],
-                                                                      scale=5,
-                                                                      number_of_candidates=self.number_of_candidates)
-        self.temp_results["Maj judge 10"] = methods.majority_judgement(input_utility=self.candidates["Utility"],
-                                                                       scale=10,
-                                                                       number_of_candidates=self.number_of_candidates)
+        self.temp_results["Maj judge 3"] = v_methods.majority_judgement(input_utility=self.candidates["Utility"],
+                                                                        scale=3,
+                                                                        number_of_candidates=self.number_of_candidates)
+        self.temp_results["Maj judge 5"] = v_methods.majority_judgement(input_utility=self.candidates["Utility"],
+                                                                        scale=5,
+                                                                        number_of_candidates=self.number_of_candidates)
+        self.temp_results["Maj judge 10"] = v_methods.majority_judgement(input_utility=self.candidates["Utility"],
+                                                                         scale=10,
+                                                                         number_of_candidates=self.number_of_candidates)
 
-        self.temp_results["Borda"] = methods.borda(input_rankings=self.candidates["Ranking"],
-                                                   number_of_candidates=self.number_of_candidates)
+        self.temp_results["Borda"] = v_methods.borda(input_rankings=self.candidates["Ranking"],
+                                                     number_of_candidates=self.number_of_candidates)
 
-        self.temp_results["Range 3"] = methods.range_voting(input_utility=self.candidates["Utility"],
-                                                            scale=3,
-                                                            number_of_candidates=self.number_of_candidates)
-        self.temp_results["Range 5"] = methods.range_voting(input_utility=self.candidates["Utility"],
-                                                            scale=5,
-                                                            number_of_candidates=self.number_of_candidates)
-        self.temp_results["Range 10"] = methods.range_voting(input_utility=self.candidates["Utility"],
-                                                             scale=10,
-                                                             number_of_candidates=self.number_of_candidates)
+        self.temp_results["Range 3"] = v_methods.range_voting(input_utility=self.candidates["Utility"],
+                                                              scale=3,
+                                                              number_of_candidates=self.number_of_candidates)
+        self.temp_results["Range 5"] = v_methods.range_voting(input_utility=self.candidates["Utility"],
+                                                              scale=5,
+                                                              number_of_candidates=self.number_of_candidates)
+        self.temp_results["Range 10"] = v_methods.range_voting(input_utility=self.candidates["Utility"],
+                                                               scale=10,
+                                                               number_of_candidates=self.number_of_candidates)
 
-        self.temp_results["Max Utility"] = methods.max_utility(input_utility=self.candidates["Utility"])
-        self.temp_results["Min Utility"] = methods.min_utility(input_utility=self.candidates["Utility"])
-        self.temp_results["Random"] = [random.randint(1, self.number_of_candidates)]
+        self.temp_results["Max Utility"] = v_methods.max_utility(input_utility=self.candidates["Utility"])
+        self.temp_results["Min Utility"] = v_methods.min_utility(input_utility=self.candidates["Utility"])
+        self.temp_results["Random"] = [randint(1, self.number_of_candidates)]
 
-        self.temp_results["Condorcet"] = methods.condorcet_calculation(input_utility=self.voters["Utility"],
-                                                                       number_of_candidates=self.number_of_candidates,
-                                                                       number_of_voters=self.number_of_voters,
-                                                                       con_winner=1, con_loser=0)
+        self.temp_results["Condorcet"] = v_methods.condorcet_calculation(input_utility=self.voters["Utility"],
+                                                                         number_of_candidates=self.number_of_candidates,
+                                                                         number_of_voters=self.number_of_voters,
+                                                                         con_winner=1, con_loser=0)
 
-        self.temp_results["Condorcet_loser"] = methods.condorcet_calculation(input_utility=self.voters["Utility"],
-                                                                             number_of_candidates=self.number_of_candidates,
-                                                                             number_of_voters=self.number_of_voters,
-                                                                             con_winner=0, con_loser=1)
+        self.temp_results["Condorcet_loser"] = v_methods.condorcet_calculation(input_utility=self.voters["Utility"],
+                                                                               number_of_candidates=self.number_of_candidates,
+                                                                               number_of_voters=self.number_of_voters,
+                                                                               con_winner=0, con_loser=1)
 
         for i in range(2, self.number_of_candidates):
-            self.temp_results["{0}Vote_Fix".format(i)] = methods.x_votes(input_rankings=self.candidates["Ranking"],
-                                                                         number_of_votes=i)
+            self.temp_results["{0}Vote_Fix".format(i)] = v_methods.x_votes(input_rankings=self.candidates["Ranking"],
+                                                                           number_of_votes=i)
 
         for i in range(2, self.number_of_candidates + 1):
-            self.temp_results["{0}Vote_Var".format(i)] = methods.x_votes(input_rankings=self.candidates["Variable_Ranking"],
-                                                                         number_of_votes=i)
+            self.temp_results["{0}Vote_Var".format(i)] = v_methods.x_votes(input_rankings=self.candidates["Variable_Ranking"],
+                                                                           number_of_votes=i)
