@@ -96,10 +96,19 @@ class Storage:
         self.data_rounds = {}
         self.set_data_rounds()
 
-    def export(self):
+    def export(self, start, end):
         writer = pd.ExcelWriter("{0}.xlsx".format(self.name), engine="xlsxwriter")
         df_all = pd.DataFrame.from_dict(self.statistics)
         df_all.to_excel(writer, sheet_name="AllData")
+
+        info_log = pd.DataFrame({'Info:': 'This simulation was created using code available at: '
+                                          'https://github.com/alotbsol/IH21_VotingSystemSimulation.',
+
+                                "Start time:": start,
+                                "End time:": end,
+                                 }, index=[0]).transpose()
+
+        info_log.to_excel(writer, sheet_name="Info_log")
 
         writer.save()
 

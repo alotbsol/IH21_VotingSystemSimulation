@@ -5,6 +5,7 @@ from can_store import CandidatesStore
 from datetime import datetime
 from joblib import Parallel, delayed
 from multiprocessing import cpu_count
+from itertools import combinations_with_replacement
 
 
 methods_list = ["Plurality", "Run off", "D21+", "D21-", "Approval",
@@ -19,7 +20,7 @@ for i in range(2, 12):
 for i in range(2, 12):
     methods_list.append("{0}Vote_Var".format(i))
 
-Master_storage = Storage(methods_list=methods_list, name="Scenario_1")
+Master_storage = Storage(methods_list=methods_list, name="Scenario_2")
 
 
 def scenario(number_of_iterations, scenario_no, number_of_candidates, number_of_voters,
@@ -43,29 +44,27 @@ if __name__ == '__main__':
     start_time = datetime.now()
 
     candidates_scenarios = [3, 4, 5, 6, 7, 8, 9, 10, 11]
-
-    can_1_scenarios = {"a_3_pol": [0.333, 0.333], "b_2_pol": [0.5, 0.5], "c_1_pol": [0.667, 0.667],
-                    "f_ran": [1, 1],
-                    "g_1_med": [1.333, 1.333], "h_2_med": [2, 2], "i_3_med": [3, 3]}
-
     voters_scenarios = [100, 101]
-
     iterations = 21
+
+    combinations_input = [0.333, 1, 3]
 
     cpu_no = cpu_count()
 
     for i in candidates_scenarios:
         pdfs = ["B"] * i
-        alpha_parameters = [1] * i
-        beta_parameters = [1] * i
+        combinations_created = []
 
-        for ii in can_1_scenarios:
-            alpha_parameters[0] = can_1_scenarios[ii][0]
-            beta_parameters[0] = can_1_scenarios[ii][1]
+        for x in combinations_with_replacement(combinations_input, i):
+            combinations_created.append(x)
+
+        for ii in range(len(combinations_created)):
+            alpha_parameters = list(combinations_created[ii])
+            beta_parameters = list(combinations_created[ii])
 
             for iii in voters_scenarios:
                 print("Candidate scenario:", i)
-                print(" Polarization scenario:", ii)
+                print(" Polarization scenario:", ii + 1, "out of", len(combinations_created))
                 print("Voters scenario", iii)
                 Parallel(n_jobs=cpu_no, require='sharedmem')(delayed(scenario)(
                     number_of_iterations=round(iterations/cpu_no),
