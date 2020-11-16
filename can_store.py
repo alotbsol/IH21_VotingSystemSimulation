@@ -234,10 +234,13 @@ class CandidatesStore:
                                                                                number_of_voters=self.number_of_voters,
                                                                                con_winner=0, con_loser=1)
 
-        for i in range(2, self.number_of_candidates):
+        for i in range(2, 11):
             self.temp_results["{0}Vote_Fix".format(i)] = v_methods.x_votes(input_rankings=self.candidates["Ranking"],
-                                                                           number_of_votes=i)
+                                                                           number_of_votes=i,
+                                                                           max_votes=self.number_of_candidates)
 
-        for i in range(2, self.number_of_candidates + 1):
+        for i in range(2, 12):
             self.temp_results["{0}Vote_Var".format(i)] = v_methods.x_votes(input_rankings=self.candidates["Variable_Ranking"],
-                                                                           number_of_votes=i)
+                                                                           number_of_votes=i,
+                                                                           max_votes=self.number_of_candidates + 1)
+

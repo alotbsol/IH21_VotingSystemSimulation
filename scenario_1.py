@@ -1,6 +1,7 @@
 # imports
 from storage import Storage
 from can_store import CandidatesStore
+from scenario_1_analysis import analyze_scenario_1
 
 from datetime import datetime
 from joblib import Parallel, delayed
@@ -14,7 +15,7 @@ methods_list = ["Plurality", "Run off", "D21+", "D21-", "Approval",
                 "Max Utility", "Min Utility",
                 "Condorcet", "Condorcet_loser",
                 "Random"]
-for i in range(2, 12):
+for i in range(2, 11):
     methods_list.append("{0}Vote_Fix".format(i))
 for i in range(2, 12):
     methods_list.append("{0}Vote_Var".format(i))
@@ -50,23 +51,27 @@ if __name__ == '__main__':
 
     voters_scenarios = [100, 101]
 
-    iterations = 21
+    iterations = 1000
 
     cpu_no = cpu_count()
-
+    counter_candidate = 1
     for i in candidates_scenarios:
         pdfs = ["B"] * i
         alpha_parameters = [1] * i
         beta_parameters = [1] * i
 
+        counter_polarization = 1
         for ii in can_1_scenarios:
             alpha_parameters[0] = can_1_scenarios[ii][0]
             beta_parameters[0] = can_1_scenarios[ii][1]
 
+            counter_voter = 1
             for iii in voters_scenarios:
-                print("Candidate scenario:", i)
-                print(" Polarization scenario:", ii)
-                print("Voters scenario", iii)
+                print("RUNNING:")
+                print("   Candidate scenario:", counter_candidate, "of:", len(candidates_scenarios))
+                print("   Polarization scenario:", counter_polarization, "of:", len(can_1_scenarios))
+                print("   Voters scenario", counter_voter, "of:", len(voters_scenarios))
+
                 Parallel(n_jobs=cpu_no, require='sharedmem')(delayed(scenario)(
                     number_of_iterations=round(iterations/cpu_no),
                     number_of_candidates=i,
@@ -79,10 +84,19 @@ if __name__ == '__main__':
                 Master_storage.merge_processes()
                 Master_storage.aggregate_results(specific_pdf_type=ii)
 
-    end_time = datetime.now()
+                counter_voter += 1
+            counter_polarization += 1
+        counter_candidate += 1
 
-    Master_storage.export(start=start_time, end=end_time)
+    end_time = datetime.now()
 
     print("calculation ends")
     print("START:", start_time)
     print("END:", end_time)
+
+    Master_storage.export(start=start_time, end=end_time)
+    print("export done")
+
+    analyze_scenario_1()
+    print("graphic analysis done")
+

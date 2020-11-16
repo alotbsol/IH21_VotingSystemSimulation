@@ -8,15 +8,19 @@ from statistics import median_low
 
 
 # calculate results based on various voting methods
-def x_votes(input_rankings, number_of_votes):
+def x_votes(input_rankings, number_of_votes, max_votes=100):
     votes_storage = []
-    for i in input_rankings:
-        votes_sum = sum(input_rankings[i][0:number_of_votes])
-        votes_storage.append(votes_sum)
 
-    winner_votes = max(votes_storage)
-    winner = [iii for iii, j in enumerate(votes_storage) if j == winner_votes]
-    winner = [x + 1 for x in winner]
+    if max_votes > number_of_votes:
+        for i in input_rankings:
+            votes_sum = sum(input_rankings[i][0:number_of_votes])
+            votes_storage.append(votes_sum)
+
+        winner_votes = max(votes_storage)
+        winner = [iii for iii, j in enumerate(votes_storage) if j == winner_votes]
+        winner = [x + 1 for x in winner]
+    else:
+        winner = "nan"
 
     return winner
 

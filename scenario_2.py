@@ -15,7 +15,7 @@ methods_list = ["Plurality", "Run off", "D21+", "D21-", "Approval",
                 "Max Utility", "Min Utility",
                 "Condorcet", "Condorcet_loser",
                 "Random"]
-for i in range(2, 12):
+for i in range(2, 11):
     methods_list.append("{0}Vote_Fix".format(i))
 for i in range(2, 12):
     methods_list.append("{0}Vote_Var".format(i))
@@ -76,7 +76,7 @@ if __name__ == '__main__':
                     scenario_no=w, ) for w in range(cpu_no))
 
                 Master_storage.merge_processes()
-                Master_storage.aggregate_results(specific_pdf_type=ii)
+                Master_storage.aggregate_results(specific_pdf_type=ii + 1)
 
     end_time = datetime.now()
 
