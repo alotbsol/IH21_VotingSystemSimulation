@@ -11,10 +11,10 @@ import random
 
 """ ConvexHull code source: https: // startupnextdoor.com / computing - convex - hull - in -python / """
 class ConvexHull(object):
-    def __init__(self, graphcolor):
+    def __init__(self, graph_color):
         self._points = []
         self._hull_points = []
-        self.graphcolor = graphcolor
+        self.graph_color = graph_color
 
     def add(self, point):
         self._points.append(point)
@@ -40,6 +40,7 @@ class ConvexHull(object):
         :return:
         '''
         points = self._points
+        print(points)
 
         # get leftmost point
         start = points[0]
@@ -58,6 +59,8 @@ class ConvexHull(object):
             p1 = None
             for p in points:
                 if p is point:
+                    print(p)
+                    print(point)
                     continue
                 else:
                     p1 = p
@@ -91,7 +94,7 @@ class ConvexHull(object):
         # hull points
         hx = [p.x for p in self._hull_points]
         hy = [p.y for p in self._hull_points]
-        plt.plot(hx, hy, c=self.graphcolor, linewidth=2, zorder=2, alpha=0.5)
+        plt.plot(hx, hy, c=self.graph_color, linewidth=2, zorder=2, alpha=0.5)
 
 
 class ClustersAndJarvis():
@@ -177,39 +180,16 @@ class ClustersAndJarvis():
 
         plt.xlabel("Frequency of selecting Condorcet winner")
         plt.ylabel("Frequency of selecting highest utility candidate")
-        """
-        plt.xlabel("Frequency of existence of Condorcet winner")
-        plt.ylabel("Frequency of Condorcet winner equal highest utlity winner")
-        """
-
-    def bacground_scatter(self):
-        backgroundmethods = ["Condorcet", "Plurality", "Maj_Judge10", "Maj_Judge3", "Maj_Judge5",
-                        "Range3", "Range5", "Range10", "D21-", "D21+", "RunOff", "Borda", "Approval", "Max U"]
-
-        for j in self.methods:
-            try:
-                backgroundmethods.remove(j)
-            except:
-                pass
-
-        for ii in range(0, len(self.scenarios)):
-            x = 0
-
-            for i in backgroundmethods:
-                cl = self.colorindexes.index(i)
-                plt.scatter(self.df_con_all.loc[i][self.scenarios[ii]], self.df_ut_all.loc[i][self.scenarios[ii]], c=[self.colourslist(cl/len(self.colorindexes))], alpha=0.01, zorder=2, s=50)
-
-                x += 1
 
     def jarvisfun(self):
         ListOfJarvis = []
         Point = namedtuple('Point', 'x y')
 
         for i in range(0, len(self.pickedmethods)):
-            ListOfJarvis.append(str(i))
-            cl = self.colorindexes.index(self.pickedmethods[i])
-            ListOfJarvis[i] = ConvexHull(graphcolor="black")
-            """self.colourslist(cl/len(self.colorindexes))"""
+                ListOfJarvis.append(str(i))
+                cl = self.colorindexes.index(self.pickedmethods[i])
+                ListOfJarvis[i] = ConvexHull(graph_color="black")
+
         for i in range(0, len(self.pickedmethods)):
             for ii in self.scenarios:
                 a = float(self.df_con.loc[str(self.pickedmethods[i]), ii])
@@ -219,7 +199,6 @@ class ClustersAndJarvis():
 
             ListOfJarvis[i].get_hull_points()
             ListOfJarvis[i].display()
-
             temporar_points = pd.concat((self.df_con.loc[self.pickedmethods[i]], self.df_ut.loc[self.pickedmethods[i]]), axis=1)
             temporar_center = self.tellme_center(input_df=temporar_points)
 
@@ -233,6 +212,7 @@ class ClustersAndJarvis():
             self.statistics.append(str(appending))
 
             self.statistics2[str(self.pickedmethods[i])] = []
+
             self.statistics2[str(self.pickedmethods[i])].append("   Max dist: " + str(round(self.max_distance(ListOfJarvis[i]._hull_points), 2)))
             self.statistics2[str(self.pickedmethods[i])].append("   STDEV dist: " + str(round(self.STDEV_distance(pts=ListOfJarvis[i]._points, center=temporar_center), 2)))
             self.statistics2[str(self.pickedmethods[i])].append("   Area: " + str(round(self.PolyArea2D(ListOfJarvis[i]._hull_points), 3)))
@@ -242,7 +222,6 @@ class ClustersAndJarvis():
             self.statistics_export[str(self.pickedmethods[i])].append(str(round(self.max_distance(ListOfJarvis[i]._hull_points), 2)))
             self.statistics_export[str(self.pickedmethods[i])].append(str(round(self.STDEV_distance(pts=ListOfJarvis[i]._points, center=temporar_center), 2)))
             self.statistics_export[str(self.pickedmethods[i])].append(str(round(self.PolyArea2D(ListOfJarvis[i]._hull_points), 3)))
-
 
     def centers(self):
         x = 0
@@ -368,35 +347,44 @@ class ClustersAndJarvis():
 
 
 #figures - all scenarios
-def allbyall_comp():
-    condorcet = pd.read_excel("21000it_montecarlo_adj.xlsx", sheet_name="all_con", index_col=0)
-    utility = pd.read_excel("21000it_montecarlo_adj.xlsx", sheet_name="all_ut", index_col=0)
+def method_by_method_graphs():
+    df_all = pd.read_excel("Scenario_2.xlsx", sheet_name="AllData", index_col=0)
+
+    df_condorcet = pd.pivot_table(df_all, values="Condorcet", index="Method", columns=['PDF'],
+                                    aggfunc=np.mean)
+
+    df_utility = df_all.copy()
+    df_utility.loc[df_utility.Method == "Condorcet", 'Max Utility'] = \
+        df_utility.loc[df_utility.Method == "Condorcet", 'Max Utility'] / (1 - df_utility.loc[df_utility.Method == "Condorcet", 'C0chosen'])
+    df_utility = pd.pivot_table(df_utility, values="Max Utility", index="Method", columns=['PDF'],
+                                    aggfunc=np.mean)
 
     x = 1
-    for i in [["Plurality", "Max U", "Condorcet"],
-              ["RunOff", "Max U", "Condorcet"],
-              ["D21+", "Max U", "Condorcet"],
-              ["D21-", "Max U", "Condorcet"],
-              ["Approval", "Max U", "Condorcet"],
-              ["Maj_Judge3", "Max U", "Condorcet"],
-              ["Maj_Judge5", "Max U", "Condorcet"],
-              ["Maj_Judge10", "Max U", "Condorcet"],
-              ["Range3", "Max U", "Condorcet"],
-              ["Range5", "Max U", "Condorcet"],
-              ["Range10", "Max U", "Condorcet"],
-              ["Borda", "Max U", "Condorcet"]
+    for i in [["Plurality", "Max Utility", "Condorcet"],
+              ["Run off", "Max Utility", "Condorcet"],
+              ["D21+", "Max Utility", "Condorcet"],
+              ["D21-", "Max Utility", "Condorcet"],
+              ["Approval", "Max Utility", "Condorcet"],
+              ["Maj judge 3", "Max Utility", "Condorcet"],
+              ["Maj judge 5", "Max Utility", "Condorcet"],
+              ["Maj judge 10", "Max Utility", "Condorcet"],
+              ["Range 3", "Max Utility", "Condorcet"],
+              ["Range 5", "Max Utility", "Condorcet"],
+              ["Range 10", "Max Utility", "Condorcet"],
+              ["Borda", "Max Utility", "Condorcet"]
               ]:
 
-        doit = ClustersAndJarvis(in_con=condorcet.loc[i],
-                                 in_ut=utility.loc[i],
-                                 in_con_all=condorcet,
-                                 in_ut_all=utility,
+        doit = ClustersAndJarvis(in_con=df_condorcet.loc[i],
+                                 in_ut=df_utility.loc[i],
+                                 in_con_all=df_condorcet,
+                                 in_ut_all=df_utility,
                                  name=str(x),
                                  limits=1.05,
                                  scatter_alpha=0.5,
                                  annotationalpha=1,
                                  second_center_size=25,
-                                 colorindexes=["Plurality", "RunOff", "D21+", "D21-", "Approval", "Maj_Judge3", "Maj_Judge5", "Maj_Judge10", "Borda", "Range3", "Range5", "Range10", "Condorcet", "Max U"])
+                                 colorindexes=["Plurality", "Run off", "D21+", "D21-", "Approval", "Maj judge 3", "Maj judge 5",
+                                 "Maj judge 10", "Borda", "Range 3", "Range 5", "Range 10", "Condorcet", "Max Utility"])
 
         doit.scatteronly()
         doit.jarvisfun()
@@ -443,12 +431,12 @@ def allbyall_comp_con():
 
 
 def analyze_scenario_2():
-    allbyall_comp()
+    method_by_method_graphs()
     """allbyall_comp_con()"""
 
 
 if __name__ == '__main__':
-    print("starting analysis")
+    print("starting analysis: scenario 2")
 
     analyze_scenario_2()
 
