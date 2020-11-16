@@ -42,49 +42,41 @@ def scatter_bar(input_data, name, y_description):
 
 # figures - polarization - relative values - chapter 4
 def scatter_bar_polarization_coloured(input_data, input_methods, name, y_description,
-                                      candidate_scenarios=9, polarization_scenarios=7,
-                                      legend_position="lower right", ):
+                                      polarization_scenarios=["a_3_pol", "b_2_pol", "c_1_pol", "f_ran", "g_1_med", "h_2_med", "i_3_med"],
+                                      min_candidates=3, max_candidates=11,
+                                      legend_position="lower right"):
+
     df = input_data
-    choosing_methods = {"fixedmethods": ["Plurality", "2VoteFix", "3VoteFix", "4VoteFix", "5VoteFix", "6VoteFix", "7VoteFix", "8VoteFix", "9VoteFix", "10VoteFix",],
-                        "variablemethods": ["Plurality", "2VoteVar", "3VoteVar", "4VoteVar", "5VoteVar", "6VoteVar", "7VoteVar", "8VoteVar", "9VoteVar", "10VoteVar",  "11VoteVar"],
-                        "fixandvar": ["Plurality", "2VoteFix", "3VoteFix", "4VoteFix", "5VoteFix", "6VoteFix", "7VoteFix", "8VoteFix", "9VoteFix", "10VoteFix", "2VoteVar", "3VoteVar", "4VoteVar", "5VoteVar", "6VoteVar", "7VoteVar", "8VoteVar", "9VoteVar", "10VoteVar",  "11VoteVar"],
-                        "othermethods": ["Plurality", "RunOff", "D21+", "D21-", "Approval", "Maj_Judge3", "Maj_Judge5", "Maj_Judge10", "Borda", "Range3", "Range5", "Range10", "Maximum Utility", "Condorcet"],
-                        "othermethodsU": ["Plurality", "RunOff", "D21+", "D21-", "Approval", "Maj_Judge3", "Maj_Judge5", "Maj_Judge10", "Borda", "Range3", "Range5", "Range10", "Maximum Utility", ],
-                        "othermethodsC": ["Plurality", "RunOff", "D21+", "D21-", "Approval", "Maj_Judge3", "Maj_Judge5", "Maj_Judge10", "Borda", "Range3", "Range5", "Range10", "Condorcet"],
-                        "allmethods": list(df.index)
-                        }
-
-    methods = choosing_methods[input_methods]
-
+    methods = input_methods
     color_number = []
     for i in range(1, len(methods) + 1):
         color_number.append(i)
 
-    colours_list = cm.get_cmap("coolwarm_r", polarization_scenarios + 1)
+    colours_list = cm.get_cmap("coolwarm_r", len(polarization_scenarios) + 1)
 
     plt.figure(figsize=(12, 6))
     plt.ylim((0 - 0.05, 1 + 0.15))
     plt.ylabel(y_description)
 
-    originallabels = []
+    original_labels = []
 
     for i in range(0, len(methods)):
-        originallabels.append(i)
+        original_labels.append(i)
         averages = []
 
-        for j in range(0, polarization_scenarios):
+        for j in range(0, len(polarization_scenarios)):
             averages.append([])
 
-        for ii in range(0, candidate_scenarios):
-            for iii in range(1, polarization_scenarios + 1):
-                the_value = df.loc[methods[i]][((ii) * polarization_scenarios + iii)]
+        for ii in range(min_candidates, max_candidates + 1):
+            for iii in range(1, len(polarization_scenarios) + 1):
+                the_value = df.loc[methods[i]][ii][polarization_scenarios[iii-1]]
 
-                plt.scatter(-0.4 + i + iii*0.1, the_value, c=[colours_list((iii - 1) / polarization_scenarios)],
+                plt.scatter(-0.4 + i + iii*0.1, the_value, c=[colours_list((iii - 1) / len(polarization_scenarios))],
                             zorder=3, s=25 + (ii * 20), alpha=0.5)
 
                 averages[iii-1].append(the_value)
 
-        for jj in range(0, polarization_scenarios):
+        for jj in range(0, len(polarization_scenarios)):
             averages[jj] = np.nanmean(averages[jj])
 
         props = dict(boxstyle='square', edgecolor='none', facecolor='white', alpha=0.5, pad=0)
@@ -96,7 +88,7 @@ def scatter_bar_polarization_coloured(input_data, input_methods, name, y_descrip
 
     plt.locator_params(axis='y', nbins=10)
     plt.grid(linestyle='-')
-    plt.xticks(originallabels, methods)  # set labels manually
+    plt.xticks(original_labels, methods)  # set labels manually
     plt.xticks(rotation=90)
     plt.tight_layout()
     plt.legend(['Polarized', "", "", "Uniform", "", "", 'Medium'], ncol=1, loc=legend_position)
@@ -108,39 +100,58 @@ def scatter_bar_polarization_coloured(input_data, input_methods, name, y_descrip
 
 def analyze_scenario_1():
     methods_for_condorcet = ["Plurality", "Run off", "D21+", "D21-", "Approval", "Maj judge 3", "Maj judge 5", "Maj judge 10", "Borda", "Range 3", "Range 5", "Range 10", "Max Utility"]
-    methods_for_utility = ["Plurality", "Run off", "D21+", "D21-", "Approval", "Maj judge 3", "Maj judge 5",
-                             "Maj judge 10", "Borda", "Range 3", "Range 5", "Range 10", "Condorcet"]
+    methods_for_utility = ["Plurality", "Run off", "D21+", "D21-", "Approval", "Maj judge 3", "Maj judge 5", "Maj judge 10", "Borda", "Range 3", "Range 5", "Range 10", "Condorcet"]
 
     methods_fix_and_var = ["2Vote_Fix", "3Vote_Fix", "4Vote_Fix", "5Vote_Fix", "6Vote_Fix", "7Vote_Fix", "8Vote_Fix", "9Vote_Fix", "10Vote_Fix",
                     "2Vote_Var", "3Vote_Var", "4Vote_Var", "5Vote_Var", "6Vote_Var", "7Vote_Var", "8Vote_Var", "9Vote_Var", "10Vote_Var", "11Vote_Var"]
 
     all_data = pd.read_excel("Scenario_1_project.xlsx", sheet_name="AllData", index_col=0)
 
+    """ IC_Condorcet """
+    """
     used_methods = methods_for_condorcet + methods_fix_and_var
     selected_data = all_data.loc[all_data['PDF_type'] == "f_ran"]
     selected_data = selected_data.loc[selected_data['Method'].isin(used_methods)]
 
-    for_graph_data = pd.pivot_table(selected_data, values="Condorcet",
-                           index="Method",
-                           columns=['Candidates'],
-                           aggfunc=np.mean)
-
+    for_graph_data = pd.pivot_table(selected_data, values="Condorcet", index="Method", columns=['Candidates'],
+                                    aggfunc=np.mean)
     for_graph_data = for_graph_data.reindex(used_methods)
     for_graph_data.loc[methods_fix_and_var] = for_graph_data.loc[methods_fix_and_var].replace(0, np.nan)
 
     scatter_bar(input_data=for_graph_data, name="IC_Condorcet",
                 y_description="Frequency of selecting Condorcet winner")
+                """
 
+    """ IC_Utility """
+    """
+    used_methods = methods_for_utility + methods_fix_and_var
+    selected_data = all_data.loc[all_data['PDF_type'] == "f_ran"]
+    selected_data = selected_data.loc[selected_data['Method'].isin(used_methods)]
+    for_graph_data = pd.pivot_table(selected_data, values="Max Utility", index="Method", columns=['Candidates'],
+                                    aggfunc=np.mean)
+    for_graph_data = for_graph_data.reindex(used_methods)
+    for_graph_data.loc[methods_fix_and_var] = for_graph_data.loc[methods_fix_and_var].replace(0, np.nan)
 
-
-
-
-
-    scatter_bar(input_data="", name="IC_Utility",
+    scatter_bar(input_data=for_graph_data, name="IC_Utility",
                 y_description="Frequency of selecting highest utility candidate")
+                """
 
+    """ Polarized Condorcet """
+    for_graph_data = pd.pivot_table(all_data, values="Condorcet", index="Method", columns=['Candidates', "PDF_type"],
+                                    aggfunc=np.mean)
+    for_graph_data.loc[methods_fix_and_var] = for_graph_data.loc[methods_fix_and_var].replace(0, np.nan)
 
+    x = 0
+    for i in [methods_for_condorcet, methods_fix_and_var]:
+        names_list = ["", "fix_and_var"]
 
+        scatter_bar_polarization_coloured(
+            input_data=for_graph_data,
+            input_methods=i,
+            name="1Polarized_Condorcet{0}".format(names_list[x]),
+            y_description="Frequency of selecting Condorcet winner")
+
+        x += 1
 
 
 
