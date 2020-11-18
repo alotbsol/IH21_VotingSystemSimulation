@@ -93,7 +93,7 @@ class ConvexHull(object):
 
 class ClustersAndJarvis:
     def __init__(self, in_con, in_ut, name, scatter_alpha, annotation_alpha, second_center_size, limits, color_indexes=[],
-                 in_con_all=[], in_ut_all=[], legend_scatter="YES"):
+                 in_con_all=[], in_ut_all=[], legend_scatter="YES", labels_x_y={"x": "", "y": ""}):
 
         self.df_con = in_con
         self.df_ut = in_ut
@@ -111,6 +111,7 @@ class ClustersAndJarvis:
         self.fixed = []
         self.statistics = []
         self.statistics2 = {}
+        self.labels_x_y = labels_x_y
 
         self.statistics_export = {}
         self.statistics_export["keys"] = ["Center Condorcet", "Center Utility", "Max dist", "STDEV dist", "Area",
@@ -143,11 +144,10 @@ class ClustersAndJarvis:
             plt.xlim((0, limits))
             plt.ylim((0, limits))
 
-    def scatteronly(self):
-        legendlabels = list(self.df_con.index)
-        colornumber = []
-        for i in range(1, len(legendlabels)+1):
-            colornumber.append(i)
+    def scatter_only(self):
+        color_number = []
+        for i in range(1, len(list(self.df_con.index))+1):
+            color_number.append(i)
 
         random_shuffle_scenarios = self.scenarios.copy()
         random.shuffle(random_shuffle_scenarios)
@@ -174,11 +174,25 @@ class ClustersAndJarvis:
             plt.annotate(i, (min(self.df_con.loc[i]) - 0.015, min(self.df_ut.loc[i]) + 0.015), ha="right", size=10,
                          weight='bold', verticalalignment='bottom', alpha=self.annotation_alpha, bbox = props)
 
+        plt.xlabel(self.labels_x_y["x"])
+        plt.ylabel(self.labels_x_y["y"])
 
-        plt.xlabel("Frequency of selecting Condorcet winner")
-        plt.ylabel("Frequency of selecting highest utility candidate")
+    def scatter_only_2(self):
+        color_number = []
+        for i in range(1, len(list(self.df_con.index)) + 1):
+            color_number.append(i)
 
-    def jarvisfun(self):
+        for ii in range(0, len(self.scenarios)):
+            x = 0
+            for i in self.picked_methods:
+                plt.scatter(self.df_con.loc[i][self.scenarios[ii]], self.df_ut.loc[i][self.scenarios[ii]],
+                            c=[self.colours_list(self.color_indexes.index(i) / len(self.color_indexes))], alpha=self.scatter_alpha, zorder=1)
+                x += 1
+
+        plt.xlabel(self.labels_x_y["x"])
+        plt.ylabel(self.labels_x_y["y"])
+
+    def jarvis_fun(self):
         ListOfJarvis = []
         Point = namedtuple('Point', 'x y')
 
@@ -226,9 +240,15 @@ class ClustersAndJarvis:
             else:
                 pass
 
-    def centers(self):
+    def centers(self, black_outer_center="yes", center_annotation="no"):
         x = 0
         for i in self.picked_methods:
+
+            if black_outer_center == "yes":
+                outer_center_c = "black"
+            else:
+                outer_center_c =[self.colours_list(self.color_indexes.index(i) / len(self.color_indexes))]
+
             df = pd.concat((self.df_con.loc[i], self.df_ut.loc[i]), axis=1)
 
             # drop na for variable and fixed votes who do not have all data points
@@ -239,7 +259,7 @@ class ClustersAndJarvis:
 
             cl = self.color_indexes.index(i)
 
-            plt.scatter(centers[:, 0], centers[:, 1], c="black", s=200,
+            plt.scatter(centers[:, 0], centers[:, 1], c=outer_center_c, s=200,
                         alpha=1, zorder=3)
 
             plt.scatter(centers[:, 0], centers[:, 1], c="white", s=self.second_center_size,
@@ -255,6 +275,13 @@ class ClustersAndJarvis:
                 pass
 
             x += 1
+
+            if center_annotation == "yes":
+                props = dict(boxstyle='square', edgecolor='none', facecolor='white', alpha=0.25, pad=0)
+                plt.text(centers[:, 0] - 0.01, centers[:, 1] - 0.005, i, fontsize=10, weight='bold', ha="right",
+                         verticalalignment='bottom', alpha=self.annotation_alpha, bbox=props, zorder=4)
+            else:
+                pass
 
     def centers_candidates(self):
         #finding how many candidate is in each scenario
@@ -346,17 +373,32 @@ class ClustersAndJarvis:
 
         plt.text(0.02, 1.02, masterstring, fontsize=11, verticalalignment='top', bbox=props)
 
+    def add_statistics_2(self):
+        props = dict(boxstyle='square', edgecolor='none', facecolor='white', alpha=0.5)
+
+        masterstring = ""
+        for i in self.statistics2:
+            self.statistics2[i].insert(0, str(i) + ":")
+
+            if i == "Condorcet" or i == "Max Utility":
+                pass
+            else:
+                textstr = " ".join(self.statistics2[i])
+                masterstring = masterstring + textstr + '\n'
+
+        plt.text(0.02, 1.02, masterstring, fontsize=11, verticalalignment='top', bbox=props)
+
     def export_statistics2(self):
         df = pd.DataFrame.from_dict(self.statistics_export)
         df.to_excel("Scenario_2_analysis_output.xlsx")
 
-    def saveit(self):
+    def save_it(self):
         plt.savefig('{0}'.format(self.name), bbox_inches='tight', pad_inches=0.05)
         plt.clf()
         plt.close()
 
 
-#figures - all scenarios
+# figures - all scenarios
 def method_by_method_graphs():
     df_all = pd.read_excel("Scenario_2.xlsx", sheet_name="AllData", index_col=0)
 
@@ -395,14 +437,16 @@ def method_by_method_graphs():
                                  annotation_alpha=1,
                                  second_center_size=25,
                                  color_indexes=["Plurality", "Run off", "D21+", "D21-", "Approval", "Maj judge 3", "Maj judge 5",
-                                 "Maj judge 10", "Borda", "Range 3", "Range 5", "Range 10", "Condorcet", "Max Utility"])
+                                 "Maj judge 10", "Borda", "Range 3", "Range 5", "Range 10", "Condorcet", "Max Utility"],
+                                 labels_x_y={"x": "Frequency of selecting Condorcet winner",
+                                             "y": "Frequency of selecting highest utility candidate"})
 
-        doit.scatteronly()
-        doit.jarvisfun()
+        doit.scatter_only()
+        doit.jarvis_fun()
         doit.centers()
         doit.centers_candidates()
         doit.add_statistics()
-        doit.saveit()
+        doit.save_it()
         x += 1
 
     doit.export_statistics2()
@@ -432,12 +476,55 @@ def condorcet_analysis():
                                  limits="no",
                                  scatter_alpha=0.5,
                                  annotation_alpha=0,
-                                 second_center_size=25,)
-        doit.scatteronly()
-        doit.jarvisfun()
+                                 second_center_size=25,
+                                 labels_x_y={"x": "Frequency of existence of Condorcet winner",
+                                             "y": "Frequency of Condorcet winner equal highest utlity winner"})
+        doit.scatter_only()
+        doit.jarvis_fun()
         doit.centers_candidates()
-        doit.saveit()
+        doit.save_it()
         x += 1
+
+
+def eleven_candidates():
+    df_all = pd.read_excel("Scenario_2.xlsx", sheet_name="AllData", index_col=0)
+
+    df_condorcet = df_all.copy()
+    df_condorcet = df_condorcet.loc[df_condorcet.Candidates == 11]
+    df_condorcet = pd.pivot_table(df_condorcet, values="Condorcet", index="Method", columns=['PDF'],
+                                    aggfunc=np.mean)
+
+    df_utility = df_all.copy()
+    df_utility = df_utility.loc[df_utility.Candidates == 11]
+    df_utility = pd.pivot_table(df_utility, values="Max Utility", index="Method", columns=['PDF'],
+                                    aggfunc=np.mean)
+
+    x = 1
+    for i in [["Plurality", "2Vote_Fix", "3Vote_Fix", "4Vote_Fix", "5Vote_Fix", "6Vote_Fix", "7Vote_Fix", "8Vote_Fix", "9Vote_Fix",
+               "10Vote_Fix", "Condorcet", "Max Utility"], ["Plurality", "2Vote_Var", "3Vote_Var", "4Vote_Var", "5Vote_Var", "6Vote_Var", "7Vote_Var", "8Vote_Var", "9Vote_Var",
+               "10Vote_Var", "11Vote_Var", "Condorcet", "Max Utility"]]:
+
+        doit = ClustersAndJarvis(in_con=df_condorcet.loc[i],
+                                 in_ut=df_utility.loc[i],
+                                 name=str("Eleven_candidates_{0}".format(x)),
+                                 limits=1.05,
+                                 annotation_alpha=1,
+                                 scatter_alpha=0.3,
+                                 second_center_size=25,
+                                 color_indexes=i,
+                                 labels_x_y={"x": "Frequency of selecting Condorcet winner",
+                                             "y": "Frequency of selecting highest utility candidate"})
+
+        doit.scatter_only_2()
+        doit.jarvis_fun()
+        doit.centers(black_outer_center="no", center_annotation="yes")
+        doit.add_statistics_2()
+        doit.save_it()
+        x += 1
+
+
+def scatter_and_centers():
+    pass
 
 
 if __name__ == '__main__':
@@ -445,6 +532,8 @@ if __name__ == '__main__':
 
     method_by_method_graphs()
     condorcet_analysis()
+
+    eleven_candidates()
 
     print("analysis finished")
 
