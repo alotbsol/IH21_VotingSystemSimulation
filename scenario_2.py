@@ -45,7 +45,7 @@ if __name__ == '__main__':
 
     candidates_scenarios = [3, 4, 5, 6, 7, 8, 9, 10, 11]
     voters_scenarios = [100, 101]
-    iterations = 21
+    iterations = 100
 
     combinations_input = [0.333, 1, 3]
 

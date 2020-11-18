@@ -23,9 +23,6 @@ class ConvexHull(object):
         '''
         Returns the orientation of the Point p1 with regards to Point p2 using origin.
         Negative if p1 is clockwise of p2.
-        :param p1:
-        :param p2:
-        :return: integer
         '''
         difference = (
             ((p2.x - origin.x) * (p1.y - origin.y))
@@ -37,10 +34,8 @@ class ConvexHull(object):
     def compute_hull(self):
         '''
         Computes the points that make up the convex hull.
-        :return:
         '''
         points = self._points
-        print(points)
 
         # get leftmost point
         start = points[0]
@@ -59,8 +54,6 @@ class ConvexHull(object):
             p1 = None
             for p in points:
                 if p is point:
-                    print(p)
-                    print(point)
                     continue
                 else:
                     p1 = p
@@ -76,6 +69,7 @@ class ConvexHull(object):
                     direction = self._get_orientation(point, far_point, p2)
                     if direction > 0:
                         far_point = p2
+
 
             self._hull_points.append(far_point)
             point = far_point
@@ -97,8 +91,8 @@ class ConvexHull(object):
         plt.plot(hx, hy, c=self.graph_color, linewidth=2, zorder=2, alpha=0.5)
 
 
-class ClustersAndJarvis():
-    def __init__(self, in_con, in_ut, name, scatter_alpha, annotationalpha, second_center_size, limits, colorindexes=[],
+class ClustersAndJarvis:
+    def __init__(self, in_con, in_ut, name, scatter_alpha, annotation_alpha, second_center_size, limits, color_indexes=[],
                  in_con_all=[], in_ut_all=[], legend_scatter="YES"):
 
         self.df_con = in_con
@@ -108,7 +102,7 @@ class ClustersAndJarvis():
         self.df_ut_all = in_ut_all
 
         self.legend_scatter = legend_scatter
-        self.colorindexes = colorindexes
+        self.color_indexes = color_indexes
 
         self.scenarios = list(self.df_con.keys())
         self.methods = list(self.df_con.index)
@@ -132,19 +126,22 @@ class ClustersAndJarvis():
                                           ]
 
         self.name = name
-        self.annotationalpha = annotationalpha
+        self.annotation_alpha = annotation_alpha
         self.second_center_size = second_center_size
         self.scatter_alpha = scatter_alpha
         self.limits = limits
-        self.pickedmethods = self.methods
-        self.colourslist = cm.get_cmap("viridis", len(self.colorindexes) + 1)
-
-        self.colourslist2 = cm.get_cmap("coolwarm")
+        self.picked_methods = self.methods
+        self.colours_list = cm.get_cmap("viridis", len(self.color_indexes) + 1)
+        self.colours_list_2 = cm.get_cmap("coolwarm")
         self.grey_color = (0.58, 0.58, 0.58, 1.0)
 
         plt.figure(figsize=(12, 8))
-        plt.xlim((0, limits))
-        plt.ylim((0, limits))
+
+        if limits == "no":
+            pass
+        else:
+            plt.xlim((0, limits))
+            plt.ylim((0, limits))
 
     def scatteronly(self):
         legendlabels = list(self.df_con.index)
@@ -155,27 +152,27 @@ class ClustersAndJarvis():
         random_shuffle_scenarios = self.scenarios.copy()
         random.shuffle(random_shuffle_scenarios)
         for ii in random_shuffle_scenarios:
-            nocandidates = ii.count("_")
-            polcan = ii.count("Ba0.333")
-            uncan = ii.count("Ba1b1")
-            medcan = ii.count("Ba3b3")
+            nocandidates = ii.count("__")
+            polcan = ii.count("B_0.333")
+            uncan = ii.count("B_1")
+            medcan = ii.count("B_3")
 
             #assigning right color
             try:
-                use_this_color = self.colourslist2(polcan/(polcan+medcan))
+                use_this_color = self.colours_list_2(polcan / (polcan + medcan))
             except:
                 use_this_color = self.grey_color
 
-            for i in self.pickedmethods:
+            for i in self.picked_methods:
                 plt.scatter(self.df_con.loc[i][ii], self.df_ut.loc[i][ii],
                             c=[use_this_color], s=6 + ((nocandidates-2)*6), alpha=self.scatter_alpha, zorder=1)
 
         # anotation to sides
         props = dict(boxstyle='square', edgecolor='none', facecolor='white', alpha=0.5)
 
-        for i in self.pickedmethods:
+        for i in self.picked_methods:
             plt.annotate(i, (min(self.df_con.loc[i]) - 0.015, min(self.df_ut.loc[i]) + 0.015), ha="right", size=10,
-                         weight='bold', verticalalignment='bottom', alpha=self.annotationalpha, bbox = props)
+                         weight='bold', verticalalignment='bottom', alpha=self.annotation_alpha, bbox = props)
 
 
         plt.xlabel("Frequency of selecting Condorcet winner")
@@ -185,47 +182,53 @@ class ClustersAndJarvis():
         ListOfJarvis = []
         Point = namedtuple('Point', 'x y')
 
-        for i in range(0, len(self.pickedmethods)):
+        for i in range(0, len(self.picked_methods)):
+            if self.picked_methods[i] not in ["Condorcet", "Max Utility"]:
                 ListOfJarvis.append(str(i))
-                cl = self.colorindexes.index(self.pickedmethods[i])
+                cl = self.color_indexes.index(self.picked_methods[i])
                 ListOfJarvis[i] = ConvexHull(graph_color="black")
+            else:
+                pass
 
-        for i in range(0, len(self.pickedmethods)):
-            for ii in self.scenarios:
-                a = float(self.df_con.loc[str(self.pickedmethods[i]), ii])
-                b = float(self.df_ut.loc[str(self.pickedmethods[i]), ii])
+        for i in range(0, len(self.picked_methods)):
+            if self.picked_methods[i] not in ["Condorcet", "Max Utility"]:
+                for ii in self.scenarios:
+                    a = float(self.df_con.loc[str(self.picked_methods[i]), ii])
+                    b = float(self.df_ut.loc[str(self.picked_methods[i]), ii])
 
-                ListOfJarvis[i].add(Point(a, b))
+                    ListOfJarvis[i].add(Point(a, b))
 
-            ListOfJarvis[i].get_hull_points()
-            ListOfJarvis[i].display()
-            temporar_points = pd.concat((self.df_con.loc[self.pickedmethods[i]], self.df_ut.loc[self.pickedmethods[i]]), axis=1)
-            temporar_center = self.tellme_center(input_df=temporar_points)
+                ListOfJarvis[i].get_hull_points()
+                ListOfJarvis[i].display()
+                temporar_points = pd.concat((self.df_con.loc[self.picked_methods[i]], self.df_ut.loc[self.picked_methods[i]]), axis=1)
+                temporar_center = self.tellme_center(input_df=temporar_points)
 
-            appending = str(str(self.pickedmethods[i]) + ":     "
-                            + "Max dist: " + str(round(self.max_distance(ListOfJarvis[i]._hull_points), 2))
-                            + "     "
-                            + "STDEV dist: " + str(round(self.STDEV_distance(pts=ListOfJarvis[i]._points, center=temporar_center), 2))
-                            + "     "
-                            + "Area: " + str(round(self.PolyArea2D(ListOfJarvis[i]._hull_points), 3))
-                            )
-            self.statistics.append(str(appending))
+                appending = str(str(self.picked_methods[i]) + ":     "
+                                + "Max dist: " + str(round(self.max_distance(ListOfJarvis[i]._hull_points), 2))
+                                + "     "
+                                + "STDEV dist: " + str(round(self.STDEV_distance(pts=ListOfJarvis[i]._points, center=temporar_center), 2))
+                                + "     "
+                                + "Area: " + str(round(self.PolyArea2D(ListOfJarvis[i]._hull_points), 3))
+                                )
+                self.statistics.append(str(appending))
 
-            self.statistics2[str(self.pickedmethods[i])] = []
+                self.statistics2[str(self.picked_methods[i])] = []
+                self.statistics2[str(self.picked_methods[i])].append("   Max dist: " + str(round(self.max_distance(ListOfJarvis[i]._hull_points), 2)))
+                self.statistics2[str(self.picked_methods[i])].append("   STDEV dist: " + str(round(self.STDEV_distance(pts=ListOfJarvis[i]._points, center=temporar_center), 2)))
+                self.statistics2[str(self.picked_methods[i])].append("   Area: " + str(round(self.PolyArea2D(ListOfJarvis[i]._hull_points), 3)))
+                self.statistics2[str(self.picked_methods[i])].append("")
 
-            self.statistics2[str(self.pickedmethods[i])].append("   Max dist: " + str(round(self.max_distance(ListOfJarvis[i]._hull_points), 2)))
-            self.statistics2[str(self.pickedmethods[i])].append("   STDEV dist: " + str(round(self.STDEV_distance(pts=ListOfJarvis[i]._points, center=temporar_center), 2)))
-            self.statistics2[str(self.pickedmethods[i])].append("   Area: " + str(round(self.PolyArea2D(ListOfJarvis[i]._hull_points), 3)))
-            self.statistics2[str(self.pickedmethods[i])].append("")
+                self.statistics_export[str(self.picked_methods[i])] = []
+                self.statistics_export[str(self.picked_methods[i])].append(str(round(self.max_distance(ListOfJarvis[i]._hull_points), 2)))
+                self.statistics_export[str(self.picked_methods[i])].append(str(round(self.STDEV_distance(pts=ListOfJarvis[i]._points, center=temporar_center), 2)))
+                self.statistics_export[str(self.picked_methods[i])].append(str(round(self.PolyArea2D(ListOfJarvis[i]._hull_points), 3)))
 
-            self.statistics_export[str(self.pickedmethods[i])] = []
-            self.statistics_export[str(self.pickedmethods[i])].append(str(round(self.max_distance(ListOfJarvis[i]._hull_points), 2)))
-            self.statistics_export[str(self.pickedmethods[i])].append(str(round(self.STDEV_distance(pts=ListOfJarvis[i]._points, center=temporar_center), 2)))
-            self.statistics_export[str(self.pickedmethods[i])].append(str(round(self.PolyArea2D(ListOfJarvis[i]._hull_points), 3)))
+            else:
+                pass
 
     def centers(self):
         x = 0
-        for i in self.pickedmethods:
+        for i in self.picked_methods:
             df = pd.concat((self.df_con.loc[i], self.df_ut.loc[i]), axis=1)
 
             # drop na for variable and fixed votes who do not have all data points
@@ -234,7 +237,7 @@ class ClustersAndJarvis():
             kmeans.fit(df)
             centers = kmeans.cluster_centers_
 
-            cl = self.colorindexes.index(i)
+            cl = self.color_indexes.index(i)
 
             plt.scatter(centers[:, 0], centers[:, 1], c="black", s=200,
                         alpha=1, zorder=3)
@@ -242,11 +245,14 @@ class ClustersAndJarvis():
             plt.scatter(centers[:, 0], centers[:, 1], c="white", s=self.second_center_size,
                         alpha=1, zorder=4)
 
-            self.statistics2[str(i)].insert(0, "   Center Utility: " + str(round(centers[:, 1][0], 2)))
-            self.statistics2[str(i)].insert(0, "   Center Condorcet: " + str(round(centers[:, 0][0], 2)))
+            if i not in ["Condorcet", "Max Utility"]:
+                self.statistics2[str(i)].insert(0, "   Center Utility: " + str(round(centers[:, 1][0], 2)))
+                self.statistics2[str(i)].insert(0, "   Center Condorcet: " + str(round(centers[:, 0][0], 2)))
 
-            self.statistics_export[str(i)].insert(0, str(round(centers[:, 1][0], 2)))
-            self.statistics_export[str(i)].insert(0, str(round(centers[:, 0][0], 2)))
+                self.statistics_export[str(i)].insert(0, str(round(centers[:, 1][0], 2)))
+                self.statistics_export[str(i)].insert(0, str(round(centers[:, 0][0], 2)))
+            else:
+                pass
 
             x += 1
 
@@ -254,7 +260,7 @@ class ClustersAndJarvis():
         #finding how many candidate is in each scenario
         list_nocandidates = []
         for i in self.scenarios:
-            list_nocandidates.append(i.count("_"))
+            list_nocandidates.append(i.count("__"))
 
         # finding unique number of candidates
         unique_list = []
@@ -274,25 +280,29 @@ class ClustersAndJarvis():
                     pass
                 y += 1
 
-        for i in self.pickedmethods:
-            df = pd.concat((self.df_con.loc[i], self.df_ut.loc[i]), axis=1).copy()
+        for i in self.picked_methods:
+            if i not in ["Condorcet", "Max Utility"]:
+                df = pd.concat((self.df_con.loc[i], self.df_ut.loc[i]), axis=1).copy()
 
-            for ii in dict_of_positions:
-                df2 = df.iloc[dict_of_positions[ii]].copy()
+                for ii in dict_of_positions:
+                    df2 = df.iloc[dict_of_positions[ii]].copy()
 
-                centers_temp = self.tellme_center(input_df=df2)
+                    centers_temp = self.tellme_center(input_df=df2)
 
-                self.statistics2[str(i)].append("   C" + str(ii) + ":" +
-                                                " CC " + str(round(centers_temp[:, 0][0], 2)) +
-                                                " CU " + str(round(centers_temp[:, 1][0], 2)) +
-                                                " Max " + str(round(self.max_distance(pts=df2), 2)) +
-                                                " STDEV " + str(round(self.STDEV_distance(pts=df2, center=centers_temp), 2))
-                                                )
+                    self.statistics2[str(i)].append("   C" + str(ii) + ":" +
+                                                    " CC " + str(round(centers_temp[:, 0][0], 2)) +
+                                                    " CU " + str(round(centers_temp[:, 1][0], 2)) +
+                                                    " Max " + str(round(self.max_distance(pts=df2), 2)) +
+                                                    " STDEV " + str(round(self.STDEV_distance(pts=df2, center=centers_temp), 2))
+                                                    )
 
-                self.statistics_export[str(i)].append(str(round(centers_temp[:, 0][0], 2)))
-                self.statistics_export[str(i)].append(str(round(centers_temp[:, 1][0], 2)))
-                self.statistics_export[str(i)].append(str(round(self.max_distance(pts=df2), 2)))
-                self.statistics_export[str(i)].append(str(round(self.STDEV_distance(pts=df2, center=centers_temp), 2)))
+                    self.statistics_export[str(i)].append(str(round(centers_temp[:, 0][0], 2)))
+                    self.statistics_export[str(i)].append(str(round(centers_temp[:, 1][0], 2)))
+                    self.statistics_export[str(i)].append(str(round(self.max_distance(pts=df2), 2)))
+                    self.statistics_export[str(i)].append(str(round(self.STDEV_distance(pts=df2, center=centers_temp), 2)))
+
+            else:
+                pass
 
     def PolyArea2D(self, pts):
         lines = np.hstack([pts, np.roll(pts, -1, axis=0)])
@@ -328,7 +338,7 @@ class ClustersAndJarvis():
         for i in self.statistics2:
             self.statistics2[i].insert(0, str(i) + ":")
 
-            if i == "Condorcet" or i == "Max U":
+            if i == "Condorcet" or i == "Max Utility":
                 pass
             else:
                 textstr = '\n'.join(self.statistics2[i])
@@ -360,7 +370,8 @@ def method_by_method_graphs():
                                     aggfunc=np.mean)
 
     x = 1
-    for i in [["Plurality", "Max Utility", "Condorcet"],
+    for i in [["Plurality", "Run off", "D21+", "D21-", "Approval", "Maj judge 3", "Maj judge 5", "Maj judge 10", "Range 3", "Range 5", "Range 10", "Borda"],
+              ["Plurality", "Max Utility", "Condorcet"],
               ["Run off", "Max Utility", "Condorcet"],
               ["D21+", "Max Utility", "Condorcet"],
               ["D21-", "Max Utility", "Condorcet"],
@@ -371,19 +382,19 @@ def method_by_method_graphs():
               ["Range 3", "Max Utility", "Condorcet"],
               ["Range 5", "Max Utility", "Condorcet"],
               ["Range 10", "Max Utility", "Condorcet"],
-              ["Borda", "Max Utility", "Condorcet"]
+              ["Borda", "Max Utility", "Condorcet"],
               ]:
 
         doit = ClustersAndJarvis(in_con=df_condorcet.loc[i],
                                  in_ut=df_utility.loc[i],
                                  in_con_all=df_condorcet,
                                  in_ut_all=df_utility,
-                                 name=str(x),
+                                 name=str("Polarization_scenarios_{0}".format(i[0])),
                                  limits=1.05,
                                  scatter_alpha=0.5,
-                                 annotationalpha=1,
+                                 annotation_alpha=1,
                                  second_center_size=25,
-                                 colorindexes=["Plurality", "Run off", "D21+", "D21-", "Approval", "Maj judge 3", "Maj judge 5",
+                                 color_indexes=["Plurality", "Run off", "D21+", "D21-", "Approval", "Maj judge 3", "Maj judge 5",
                                  "Maj judge 10", "Borda", "Range 3", "Range 5", "Range 10", "Condorcet", "Max Utility"])
 
         doit.scatteronly()
@@ -397,48 +408,43 @@ def method_by_method_graphs():
     doit.export_statistics2()
 
 
-def allbyall_comp_con():
+def condorcet_analysis():
+    df_all = pd.read_excel("Scenario_2.xlsx", sheet_name="AllData", index_col=0)
 
-    condorcet = pd.read_excel("21000it_montecarlo_adj_forcondorcet.xlsx", sheet_name="all_con", index_col=0)
-    utility = pd.read_excel("21000it_montecarlo_adj_forcondorcet.xlsx", sheet_name="all_ut", index_col=0)
+    df_condorcet = df_all.copy()
+    df_condorcet["C0chosen"] = 1 - df_condorcet["C0chosen"]
+    df_condorcet = pd.pivot_table(df_condorcet, values="C0chosen", index="Method", columns=['PDF'],
+                                 aggfunc=np.mean)
+
+    df_utility = df_all.copy()
+    df_utility.loc[df_utility.Method == "Condorcet", 'Max Utility'] = \
+        df_utility.loc[df_utility.Method == "Condorcet", 'Max Utility'] / (1 - df_utility.loc[df_utility.Method == "Condorcet", 'C0chosen'])
+    df_utility = pd.pivot_table(df_utility, values="Max Utility", index="Method", columns=['PDF'],
+                                    aggfunc=np.mean)
 
     x = 1
-    for i in[
-             ["c"],
-             ]:
-
-        """["Plurality", "Max U", "Condorcet", ],
-             ["Condorcet_notadjusted", "Max U", "Condorcet",],"""
-
-        doit = ClustersAndJarvis(in_con=condorcet.loc[i],
-                                 in_ut=utility.loc[i],
-                                 in_con_all=condorcet,
-                                 in_ut_all=utility,
-                                 name=str(x),
-                                 limits=1.05,
-                                 #used to be set on 0.3
+    for i in [["Condorcet"]]:
+        doit = ClustersAndJarvis(in_con=df_condorcet.loc[i],
+                                 in_ut=df_utility.loc[i],
+                                 in_con_all=df_condorcet,
+                                 in_ut_all=df_utility,
+                                 name=str("Condorcet_analysis_{0}".format(x)),
+                                 limits="no",
                                  scatter_alpha=0.5,
-                                 annotationalpha=1,
-                                 second_center_size=25,
-                                 colorindexes=["Plurality", "RunOff", "D21+", "D21-", "Approval", "Maj_Judge3", "Maj_Judge5", "Maj_Judge10", "Borda", "Range3", "Range5", "Range10", "c", "Condorcet", "Max U"])
-        print(x)
+                                 annotation_alpha=0,
+                                 second_center_size=25,)
         doit.scatteronly()
         doit.jarvisfun()
         doit.centers_candidates()
         doit.saveit()
         x += 1
-        print(x)
-
-
-def analyze_scenario_2():
-    method_by_method_graphs()
-    """allbyall_comp_con()"""
 
 
 if __name__ == '__main__':
     print("starting analysis: scenario 2")
 
-    analyze_scenario_2()
+    method_by_method_graphs()
+    condorcet_analysis()
 
     print("analysis finished")
 
