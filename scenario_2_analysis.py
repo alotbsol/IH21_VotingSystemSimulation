@@ -93,7 +93,7 @@ class ConvexHull(object):
 
 class ClustersAndJarvis:
     def __init__(self, in_con, in_ut, name, scatter_alpha, annotation_alpha, second_center_size, limits, color_indexes=[],
-                 in_con_all=[], in_ut_all=[], legend_scatter="YES", labels_x_y={"x": "", "y": ""}):
+                 in_con_all=[], in_ut_all=[], legend_scatter="YES", labels_x_y={"x": "", "y": ""}, check_random="no"):
 
         self.df_con = in_con
         self.df_ut = in_ut
@@ -104,13 +104,17 @@ class ClustersAndJarvis:
         self.legend_scatter = legend_scatter
         self.color_indexes = color_indexes
 
+        if check_random == "YES":
+            random.Random(12).shuffle(self.color_indexes)
+        else:
+            pass
+
         self.scenarios = list(self.df_con.keys())
         self.methods = list(self.df_con.index)
 
         self.variable = []
         self.fixed = []
-        self.statistics = []
-        self.statistics2 = {}
+        self.statistics = {}
         self.labels_x_y = labels_x_y
 
         self.statistics_export = {}
@@ -192,7 +196,7 @@ class ClustersAndJarvis:
         plt.xlabel(self.labels_x_y["x"])
         plt.ylabel(self.labels_x_y["y"])
 
-    def jarvis_fun(self):
+    def jarvis_fun(self, default_color="yes"):
         ListOfJarvis = []
         Point = namedtuple('Point', 'x y')
 
@@ -200,7 +204,13 @@ class ClustersAndJarvis:
             if self.picked_methods[i] not in ["Condorcet", "Max Utility"]:
                 ListOfJarvis.append(str(i))
                 cl = self.color_indexes.index(self.picked_methods[i])
-                ListOfJarvis[i] = ConvexHull(graph_color="black")
+
+                if default_color == "yes":
+                    graph_color = "black"
+                else:
+                    graph_color = self.colours_list(cl / len(self.color_indexes))
+
+                ListOfJarvis[i] = ConvexHull(graph_color=graph_color)
             else:
                 pass
 
@@ -217,20 +227,11 @@ class ClustersAndJarvis:
                 temporar_points = pd.concat((self.df_con.loc[self.picked_methods[i]], self.df_ut.loc[self.picked_methods[i]]), axis=1)
                 temporar_center = self.tellme_center(input_df=temporar_points)
 
-                appending = str(str(self.picked_methods[i]) + ":     "
-                                + "Max dist: " + str(round(self.max_distance(ListOfJarvis[i]._hull_points), 2))
-                                + "     "
-                                + "STDEV dist: " + str(round(self.STDEV_distance(pts=ListOfJarvis[i]._points, center=temporar_center), 2))
-                                + "     "
-                                + "Area: " + str(round(self.PolyArea2D(ListOfJarvis[i]._hull_points), 3))
-                                )
-                self.statistics.append(str(appending))
-
-                self.statistics2[str(self.picked_methods[i])] = []
-                self.statistics2[str(self.picked_methods[i])].append("   Max dist: " + str(round(self.max_distance(ListOfJarvis[i]._hull_points), 2)))
-                self.statistics2[str(self.picked_methods[i])].append("   STDEV dist: " + str(round(self.STDEV_distance(pts=ListOfJarvis[i]._points, center=temporar_center), 2)))
-                self.statistics2[str(self.picked_methods[i])].append("   Area: " + str(round(self.PolyArea2D(ListOfJarvis[i]._hull_points), 3)))
-                self.statistics2[str(self.picked_methods[i])].append("")
+                self.statistics[str(self.picked_methods[i])] = []
+                self.statistics[str(self.picked_methods[i])].append("  Max d: " + str(round(self.max_distance(ListOfJarvis[i]._hull_points), 2)))
+                self.statistics[str(self.picked_methods[i])].append("  STDEV d: " + str(round(self.STDEV_distance(pts=ListOfJarvis[i]._points, center=temporar_center), 2)))
+                self.statistics[str(self.picked_methods[i])].append("  Area: " + str(round(self.PolyArea2D(ListOfJarvis[i]._hull_points), 3)))
+                self.statistics[str(self.picked_methods[i])].append("")
 
                 self.statistics_export[str(self.picked_methods[i])] = []
                 self.statistics_export[str(self.picked_methods[i])].append(str(round(self.max_distance(ListOfJarvis[i]._hull_points), 2)))
@@ -240,7 +241,7 @@ class ClustersAndJarvis:
             else:
                 pass
 
-    def centers(self, black_outer_center="yes", center_annotation="no"):
+    def centers(self, black_outer_center="yes", center_annotation="no", cu="  Center Utility: ", cc="  Center Condorcet: ", no_stat="no", y_plus=0):
         x = 0
         for i in self.picked_methods:
 
@@ -265,20 +266,23 @@ class ClustersAndJarvis:
             plt.scatter(centers[:, 0], centers[:, 1], c="white", s=self.second_center_size,
                         alpha=1, zorder=4)
 
-            if i not in ["Condorcet", "Max Utility"]:
-                self.statistics2[str(i)].insert(0, "   Center Utility: " + str(round(centers[:, 1][0], 2)))
-                self.statistics2[str(i)].insert(0, "   Center Condorcet: " + str(round(centers[:, 0][0], 2)))
-
-                self.statistics_export[str(i)].insert(0, str(round(centers[:, 1][0], 2)))
-                self.statistics_export[str(i)].insert(0, str(round(centers[:, 0][0], 2)))
-            else:
+            if no_stat == "yes":
                 pass
+            else:
+                if i not in ["Condorcet", "Max Utility"]:
+                    self.statistics[str(i)].insert(0, cu + str(round(centers[:, 1][0], 2)))
+                    self.statistics[str(i)].insert(0, cc + str(round(centers[:, 0][0], 2)))
+
+                    self.statistics_export[str(i)].insert(0, str(round(centers[:, 1][0], 2)))
+                    self.statistics_export[str(i)].insert(0, str(round(centers[:, 0][0], 2)))
+                else:
+                    pass
 
             x += 1
 
             if center_annotation == "yes":
                 props = dict(boxstyle='square', edgecolor='none', facecolor='white', alpha=0.25, pad=0)
-                plt.text(centers[:, 0] - 0.01, centers[:, 1] - 0.005, i, fontsize=10, weight='bold', ha="right",
+                plt.text(centers[:, 0] - 0.01, centers[:, 1] + y_plus, i, fontsize=10, weight='bold', ha="right",
                          verticalalignment='bottom', alpha=self.annotation_alpha, bbox=props, zorder=4)
             else:
                 pass
@@ -316,12 +320,12 @@ class ClustersAndJarvis:
 
                     centers_temp = self.tellme_center(input_df=df2)
 
-                    self.statistics2[str(i)].append("   C" + str(ii) + ":" +
+                    self.statistics[str(i)].append("   C" + str(ii) + ":" +
                                                     " CC " + str(round(centers_temp[:, 0][0], 2)) +
                                                     " CU " + str(round(centers_temp[:, 1][0], 2)) +
                                                     " Max " + str(round(self.max_distance(pts=df2), 2)) +
                                                     " STDEV " + str(round(self.STDEV_distance(pts=df2, center=centers_temp), 2))
-                                                    )
+                                                   )
 
                     self.statistics_export[str(i)].append(str(round(centers_temp[:, 0][0], 2)))
                     self.statistics_export[str(i)].append(str(round(centers_temp[:, 1][0], 2)))
@@ -362,28 +366,28 @@ class ClustersAndJarvis:
         props = dict(boxstyle='square', edgecolor='none', facecolor='white', alpha=0.5)
 
         masterstring = ""
-        for i in self.statistics2:
-            self.statistics2[i].insert(0, str(i) + ":")
+        for i in self.statistics:
+            self.statistics[i].insert(0, str(i) + ":")
 
             if i == "Condorcet" or i == "Max Utility":
                 pass
             else:
-                textstr = '\n'.join(self.statistics2[i])
+                textstr = '\n'.join(self.statistics[i])
                 masterstring = masterstring + textstr + '\n'
 
-        plt.text(0.02, 1.02, masterstring, fontsize=11, verticalalignment='top', bbox=props)
+        plt.text(0.02, 1.02, masterstring, fontsize=10, verticalalignment='top', bbox=props)
 
     def add_statistics_2(self):
         props = dict(boxstyle='square', edgecolor='none', facecolor='white', alpha=0.5)
 
         masterstring = ""
-        for i in self.statistics2:
-            self.statistics2[i].insert(0, str(i) + ":")
+        for i in self.statistics:
+            self.statistics[i].insert(0, str(i) + ":")
 
             if i == "Condorcet" or i == "Max Utility":
                 pass
             else:
-                textstr = " ".join(self.statistics2[i])
+                textstr = " ".join(self.statistics[i])
                 masterstring = masterstring + textstr + '\n'
 
         plt.text(0.02, 1.02, masterstring, fontsize=11, verticalalignment='top', bbox=props)
@@ -427,7 +431,7 @@ def method_by_method_graphs():
               ["Borda", "Max Utility", "Condorcet"],
               ]:
 
-        doit = ClustersAndJarvis(in_con=df_condorcet.loc[i],
+        DoIt = ClustersAndJarvis(in_con=df_condorcet.loc[i],
                                  in_ut=df_utility.loc[i],
                                  in_con_all=df_condorcet,
                                  in_ut_all=df_utility,
@@ -441,15 +445,15 @@ def method_by_method_graphs():
                                  labels_x_y={"x": "Frequency of selecting Condorcet winner",
                                              "y": "Frequency of selecting highest utility candidate"})
 
-        doit.scatter_only()
-        doit.jarvis_fun()
-        doit.centers()
-        doit.centers_candidates()
-        doit.add_statistics()
-        doit.save_it()
+        DoIt.scatter_only()
+        DoIt.jarvis_fun()
+        DoIt.centers()
+        DoIt.centers_candidates()
+        DoIt.add_statistics()
+        DoIt.save_it()
         x += 1
 
-    doit.export_statistics2()
+    DoIt.export_statistics2()
 
 
 def condorcet_analysis():
@@ -468,7 +472,7 @@ def condorcet_analysis():
 
     x = 1
     for i in [["Condorcet"]]:
-        doit = ClustersAndJarvis(in_con=df_condorcet.loc[i],
+        DoIt = ClustersAndJarvis(in_con=df_condorcet.loc[i],
                                  in_ut=df_utility.loc[i],
                                  in_con_all=df_condorcet,
                                  in_ut_all=df_utility,
@@ -479,10 +483,10 @@ def condorcet_analysis():
                                  second_center_size=25,
                                  labels_x_y={"x": "Frequency of existence of Condorcet winner",
                                              "y": "Frequency of Condorcet winner equal highest utlity winner"})
-        doit.scatter_only()
-        doit.jarvis_fun()
-        doit.centers_candidates()
-        doit.save_it()
+        DoIt.scatter_only()
+        DoIt.jarvis_fun()
+        DoIt.centers_candidates()
+        DoIt.save_it()
         x += 1
 
 
@@ -504,7 +508,7 @@ def eleven_candidates():
                "10Vote_Fix", "Condorcet", "Max Utility"], ["Plurality", "2Vote_Var", "3Vote_Var", "4Vote_Var", "5Vote_Var", "6Vote_Var", "7Vote_Var", "8Vote_Var", "9Vote_Var",
                "10Vote_Var", "11Vote_Var", "Condorcet", "Max Utility"]]:
 
-        doit = ClustersAndJarvis(in_con=df_condorcet.loc[i],
+        DoIt = ClustersAndJarvis(in_con=df_condorcet.loc[i],
                                  in_ut=df_utility.loc[i],
                                  name=str("Eleven_candidates_{0}".format(x)),
                                  limits=1.05,
@@ -515,25 +519,54 @@ def eleven_candidates():
                                  labels_x_y={"x": "Frequency of selecting Condorcet winner",
                                              "y": "Frequency of selecting highest utility candidate"})
 
-        doit.scatter_only_2()
-        doit.jarvis_fun()
-        doit.centers(black_outer_center="no", center_annotation="yes")
-        doit.add_statistics_2()
-        doit.save_it()
+        DoIt.scatter_only_2()
+        DoIt.jarvis_fun(default_color="no")
+        DoIt.centers(black_outer_center="no", center_annotation="yes", cu="  CU: ", cc="  CC: ", y_plus=+0.005)
+        DoIt.add_statistics_2()
+        DoIt.save_it()
         x += 1
 
 
 def scatter_and_centers():
-    pass
+    df_all = pd.read_excel("Scenario_2.xlsx", sheet_name="AllData", index_col=0)
+
+    df_condorcet = pd.pivot_table(df_all, values="Condorcet", index="Method", columns=['PDF'],
+                                  aggfunc=np.mean)
+
+    df_utility = df_all.copy()
+    df_utility.loc[df_utility.Method == "Condorcet", 'Max Utility'] = \
+        df_utility.loc[df_utility.Method == "Condorcet", 'Max Utility'] / (
+                    1 - df_utility.loc[df_utility.Method == "Condorcet", 'C0chosen'])
+    df_utility = pd.pivot_table(df_utility, values="Max Utility", index="Method", columns=['PDF'],
+                                aggfunc=np.mean)
+
+    for i in [["Plurality", "Run off", "D21+", "D21-", "Approval", "Maj judge 3", "Maj judge 5", "Maj judge 10",
+               "Range 3", "Range 5", "Range 10", "Borda", "Condorcet", "Max Utility"]]:
+        DoIt = ClustersAndJarvis(in_con=df_condorcet.loc[i],
+                                 in_ut=df_utility.loc[i],
+                                 name="Scatter_and_centers",
+                                 limits=1.05,
+                                 annotation_alpha=1,
+                                 scatter_alpha=0.075,
+                                 second_center_size=25,
+                                 color_indexes=i,
+                                 labels_x_y={"x": "Frequency of selecting Condorcet winner",
+                                             "y": "Frequency of selecting highest utility candidate"},
+                                 check_random="YES")
+
+        DoIt.scatter_only_2()
+        DoIt.centers(black_outer_center="no", center_annotation="yes", no_stat="yes", y_plus=-0.005)
+        DoIt.save_it()
 
 
 if __name__ == '__main__':
     print("starting analysis: scenario 2")
-
+    """
     method_by_method_graphs()
     condorcet_analysis()
-
     eleven_candidates()
+    """
+    scatter_and_centers()
 
     print("analysis finished")
 
