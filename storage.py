@@ -94,7 +94,7 @@ class Storage:
                     input_list=self.data_rounds[i], unique_value=ii))
 
         self.data_rounds = {}
-        self.set_data_rounds()
+        self.create_process()
 
     def export(self, start, end):
         writer = pd.ExcelWriter("{0}.xlsx".format(self.name), engine="xlsxwriter")

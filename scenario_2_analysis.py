@@ -561,11 +561,10 @@ def scatter_and_centers():
 
 if __name__ == '__main__':
     print("starting analysis: scenario 2")
-    """
+
     method_by_method_graphs()
     condorcet_analysis()
     eleven_candidates()
-    """
     scatter_and_centers()
 
     print("analysis finished")

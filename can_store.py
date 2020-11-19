@@ -17,22 +17,13 @@ class Candidate:
         self.beta = beta
 
         self.utility = []
-        self.hist = []
 
         if distribution == "B":
             self.beta_distribution()
         elif distribution == "R":
             self.random_distribution()
-        elif distribution == "flat":
-            self.flat_distribution()
         else:
             pass
-
-    # create flat utility distribution for all voters
-    def flat_distribution(self):
-        self.utility = []
-        for i in range(0, self.voters):
-            self.utility.append(self.average_utility)
 
     # create random utility distribution for all voters
     def random_distribution(self):
@@ -46,23 +37,6 @@ class Candidate:
         for i in list(x):
             self.utility.append(i)
 
-    # creates histogram from utility distribution
-    def create_hist(self):
-        one_step = 1 / self.hist_bins
-        limits = []
-        self.hist = [0] * self.hist_bins
-
-        previous_value = 0
-        for i in range(0, self.hist_bins):
-            limits.append(round(one_step + previous_value, 3))
-            previous_value += one_step
-
-        for i in self.utility:
-            x = ceil(i * 10) / 10
-            index_hist = limits.index(x)
-
-            self.hist[index_hist] += 1
-
 
 class CandidatesStore:
     def __init__(self, number_of_voters):
@@ -75,7 +49,6 @@ class CandidatesStore:
 
         self.current_scenario = ""
         self.temp_results = {}
-        self.temp_results_histograms = {}
 
     def add_candidate(self, distribution, alpha, beta):
         self.can_dict[str(self.number_of_candidates + 1)] = Candidate(voters=self.number_of_voters,
@@ -244,38 +217,3 @@ class CandidatesStore:
             self.temp_results["{0}Vote_Var".format(i)] = v_methods.x_votes(input_rankings=self.candidates["Variable_Ranking"],
                                                                            number_of_votes=i,
                                                                            max_votes=self.number_of_candidates + 1)
-
-    def store_histograms(self):
-        self.temp_results_histograms = {}
-        methods_list = ["Plurality", "Run off", "D21+", "D21-", "Approval",
-                        "Maj judge 3", "Maj judge 5", "Maj judge 10",
-                        "Borda", "Range 3", "Range 5", "Range 10",
-                        "Max Utility", "Min Utility", "Condorcet", "Condorcet_loser", "Random"]
-
-        for i in self.can_dict:
-            self.can_dict[i].create_hist()
-
-        for i in methods_list:
-            respective_winners = self.temp_results[i]
-            self.temp_results_histograms[i] = []
-            for ii in respective_winners:
-                if ii == 0:
-                    pass
-                else:
-                    self.temp_results_histograms[i].append(self.can_dict[str(ii)].hist)
-
-            try:
-                new_list_averaged = [0] * len(self.temp_results_histograms[i][0])
-            except:
-                pass
-
-            for ii in range(0, len(self.temp_results_histograms[i])):
-                for iii in range(0, len(new_list_averaged)):
-                    new_list_averaged[iii] += (self.temp_results_histograms[i][ii][iii] /
-                                               len(self.temp_results_histograms[i]))
-
-            self.temp_results_histograms[i] = new_list_averaged
-
-        print(self.temp_results_histograms)
-
-
