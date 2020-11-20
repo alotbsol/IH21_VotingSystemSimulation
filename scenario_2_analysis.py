@@ -559,13 +559,17 @@ def scatter_and_centers():
         DoIt.save_it()
 
 
-if __name__ == '__main__':
-    print("starting analysis: scenario 2")
-
+def analyze_scenario_2():
     method_by_method_graphs()
     condorcet_analysis()
     eleven_candidates()
     scatter_and_centers()
+
+
+if __name__ == '__main__':
+    print("starting analysis: scenario 2")
+
+    analyze_scenario_2()
 
     print("analysis finished")
 

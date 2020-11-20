@@ -1,6 +1,7 @@
 # imports
 from storage import Storage
 from can_store import CandidatesStore
+from scenario_2_analysis import analyze_scenario_2
 
 from datetime import datetime
 from joblib import Parallel, delayed
@@ -80,8 +81,12 @@ if __name__ == '__main__':
 
     end_time = datetime.now()
 
-    Master_storage.export(start=start_time, end=end_time)
-
     print("calculation ends")
     print("START:", start_time)
     print("END:", end_time)
+
+    Master_storage.export(start=start_time, end=end_time)
+    print("export done")
+
+    analyze_scenario_2()
+    print("graphic analysis done")

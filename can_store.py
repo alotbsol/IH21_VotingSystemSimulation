@@ -8,10 +8,9 @@ import v_methods
 
 
 class Candidate:
-    def __init__(self, voters, name, hist_bins=10, distribution="R", alpha=1, beta=1):
+    def __init__(self, voters, name, distribution="R", alpha=1, beta=1):
         self.voters = voters
         self.name = name
-        self.hist_bins = hist_bins
         self.distribution = distribution
         self.alpha = alpha
         self.beta = beta

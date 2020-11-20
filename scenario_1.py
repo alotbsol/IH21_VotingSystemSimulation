@@ -51,7 +51,7 @@ if __name__ == '__main__':
 
     voters_scenarios = [100, 101]
 
-    iterations = 21000
+    iterations = 73000
 
     cpu_no = cpu_count()
     counter_candidate = 1
