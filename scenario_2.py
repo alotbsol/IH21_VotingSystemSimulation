@@ -9,7 +9,7 @@ from multiprocessing import cpu_count
 from itertools import combinations_with_replacement
 
 
-methods_list = ["Plurality", "Run off", "D21+", "D21-", "Approval",
+methods_list = ["Plurality", "RunOff", "D21+", "D21-", "Approval",
                 "Maj judge 3", "Maj judge 5", "Maj judge 10",
                 "Borda",
                 "Range 3", "Range 5", "Range 10",
@@ -46,7 +46,7 @@ if __name__ == '__main__':
 
     candidates_scenarios = [3, 4, 5, 6, 7, 8, 9, 10, 11]
     voters_scenarios = [100, 101]
-    iterations = 100
+    iterations = 21000
 
     combinations_input = [0.333, 1, 3]
 

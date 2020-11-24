@@ -156,10 +156,10 @@ class CandidatesStore:
 
         self.temp_results["Plurality"] = v_methods.x_votes(input_rankings=self.candidates["Ranking"], number_of_votes=1)
 
-        self.temp_results["Run off"] = v_methods.run_off(input_rankings=self.candidates["Ranking"],
-                                                         input_voters_rankings=self.voters["Ranking"],
-                                                         number_of_candidates=self.number_of_candidates,
-                                                         number_of_voters=self.number_of_voters)
+        self.temp_results["RunOff"] = v_methods.run_off(input_rankings=self.candidates["Ranking"],
+                                                        input_voters_rankings=self.voters["Ranking"],
+                                                        number_of_candidates=self.number_of_candidates,
+                                                        number_of_voters=self.number_of_voters)
 
         self.temp_results["D21+"] = v_methods.x_votes(input_rankings=self.candidates["Variable_Ranking"],
                                                       number_of_votes=v_methods.d21_votes(self.number_of_candidates))
