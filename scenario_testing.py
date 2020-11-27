@@ -14,9 +14,9 @@ methods_list = ["Plurality", "Run off", "D21+", "D21-", "Approval",
                 "Max Utility", "Min Utility",
                 "Condorcet", "Condorcet_loser",
                 "Random"]
-for i in range(2, 12):
+for i in range(2, 7):
     methods_list.append("{0}Vote_Fix".format(i))
-for i in range(2, 12):
+for i in range(2, 7):
     methods_list.append("{0}Vote_Var".format(i))
 
 Master_storage = Storage(methods_list=methods_list, name="Scenario_testing")
@@ -42,9 +42,9 @@ if __name__ == '__main__':
     print("calculation starts")
     start_time = datetime.now()
 
-    candidates_scenarios = [3, 4, 5, 6, 7, 8, 9, 10, 11]
-    voters_scenarios = [100, 101]
-    iterations = 21
+    candidates_scenarios = [5, 7]
+    voters_scenarios = [101]
+    iterations = 24
 
     cpu_no = cpu_count()
 
