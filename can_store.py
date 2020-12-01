@@ -170,6 +170,9 @@ class CandidatesStore:
         self.temp_results["Approval"] = v_methods.x_votes(input_rankings=self.candidates["Variable_Ranking"],
                                                           number_of_votes=self.number_of_candidates)
 
+        self.temp_results["IRV"] = v_methods.irv(input_voters_rankings=self.voters["Ranking"],
+                                                 number_of_candidates=self.number_of_candidates)
+
         self.temp_results["Maj judge 3"] = v_methods.majority_judgement(input_utility=self.candidates["Utility"],
                                                                         scale=3,
                                                                         number_of_candidates=self.number_of_candidates)

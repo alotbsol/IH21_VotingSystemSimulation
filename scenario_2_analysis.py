@@ -422,6 +422,7 @@ def method_by_method_graphs():
               ["D21+", "Max Utility", "Condorcet"],
               ["D21-", "Max Utility", "Condorcet"],
               ["Approval", "Max Utility", "Condorcet"],
+              ["IRV", "Max Utility", "Condorcet"],
               ["Maj judge 3", "Max Utility", "Condorcet"],
               ["Maj judge 5", "Max Utility", "Condorcet"],
               ["Maj judge 10", "Max Utility", "Condorcet"],
@@ -440,7 +441,7 @@ def method_by_method_graphs():
                                  scatter_alpha=0.5,
                                  annotation_alpha=1,
                                  second_center_size=25,
-                                 color_indexes=["Plurality", "RunOff", "D21+", "D21-", "Approval", "Maj judge 3", "Maj judge 5",
+                                 color_indexes=["Plurality", "RunOff", "D21+", "D21-", "Approval", "IRV", "Maj judge 3", "Maj judge 5",
                                  "Maj judge 10", "Borda", "Range 3", "Range 5", "Range 10", "Condorcet", "Max Utility"],
                                  labels_x_y={"x": "Frequency of selecting Condorcet winner",
                                              "y": "Frequency of selecting highest utility candidate"})
@@ -540,7 +541,7 @@ def scatter_and_centers():
     df_utility = pd.pivot_table(df_utility, values="Max Utility", index="Method", columns=['PDF'],
                                 aggfunc=np.mean)
 
-    for i in [["Plurality", "RunOff", "D21+", "D21-", "Approval", "Maj judge 3", "Maj judge 5", "Maj judge 10",
+    for i in [["Plurality", "RunOff", "D21+", "D21-", "Approval", "IRV", "Maj judge 3", "Maj judge 5", "Maj judge 10",
                "Range 3", "Range 5", "Range 10", "Borda", "Condorcet", "Max Utility"]]:
         DoIt = ClustersAndJarvis(in_con=df_condorcet.loc[i],
                                  in_ut=df_utility.loc[i],

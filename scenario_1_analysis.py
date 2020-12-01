@@ -101,8 +101,8 @@ def scatter_bar_polarization_coloured(input_data, input_methods, name, y_descrip
 
 
 def analyze_scenario_1():
-    methods_for_condorcet = ["Plurality", "RunOff", "D21+", "D21-", "Approval", "Maj judge 3", "Maj judge 5", "Maj judge 10", "Borda", "Range 3", "Range 5", "Range 10", "Max Utility"]
-    methods_for_utility = ["Plurality", "RunOff", "D21+", "D21-", "Approval", "Maj judge 3", "Maj judge 5", "Maj judge 10", "Borda", "Range 3", "Range 5", "Range 10", "Condorcet"]
+    methods_for_condorcet = ["Plurality", "RunOff", "D21+", "D21-", "Approval", "IRV", "Maj judge 3", "Maj judge 5", "Maj judge 10", "Borda", "Range 3", "Range 5", "Range 10", "Max Utility"]
+    methods_for_utility = ["Plurality", "RunOff", "D21+", "D21-", "Approval", "IRV", "Maj judge 3", "Maj judge 5", "Maj judge 10", "Borda", "Range 3", "Range 5", "Range 10", "Condorcet"]
 
     methods_fix_and_var = ["2Vote_Fix", "3Vote_Fix", "4Vote_Fix", "5Vote_Fix", "6Vote_Fix", "7Vote_Fix", "8Vote_Fix", "9Vote_Fix", "10Vote_Fix",
                     "2Vote_Var", "3Vote_Var", "4Vote_Var", "5Vote_Var", "6Vote_Var", "7Vote_Var", "8Vote_Var", "9Vote_Var", "10Vote_Var", "11Vote_Var"]

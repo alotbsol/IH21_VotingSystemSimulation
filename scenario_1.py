@@ -8,7 +8,7 @@ from joblib import Parallel, delayed
 from multiprocessing import cpu_count
 
 
-methods_list = ["Plurality", "RunOff", "D21+", "D21-", "Approval",
+methods_list = ["Plurality", "RunOff", "D21+", "D21-", "Approval", "IRV",
                 "Maj judge 3", "Maj judge 5", "Maj judge 10",
                 "Borda",
                 "Range 3", "Range 5", "Range 10",

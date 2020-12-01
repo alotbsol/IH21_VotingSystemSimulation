@@ -7,16 +7,17 @@ from joblib import Parallel, delayed
 from multiprocessing import cpu_count
 
 
-methods_list = ["Plurality", "Run off", "D21+", "D21-", "Approval",
+methods_list = ["Plurality", "RunOff", "D21+", "D21-", "Approval", "IRV",
                 "Maj judge 3", "Maj judge 5", "Maj judge 10",
                 "Borda",
                 "Range 3", "Range 5", "Range 10",
                 "Max Utility", "Min Utility",
                 "Condorcet", "Condorcet_loser",
                 "Random"]
-for i in range(2, 7):
+
+for i in range(2, 11):
     methods_list.append("{0}Vote_Fix".format(i))
-for i in range(2, 7):
+for i in range(2, 12):
     methods_list.append("{0}Vote_Var".format(i))
 
 Master_storage = Storage(methods_list=methods_list, name="Scenario_testing")

@@ -266,3 +266,51 @@ def condorcet_calculation(input_utility, number_of_candidates, number_of_voters,
 
     return winner
 
+
+def d21_votes(number_of_candidates, winners=1):
+    ideal_votes = round(2*winners - (winners - 2)*0.618)
+    votes_function = int((1/2)*(sqrt((winners - 1) ** 2 + (4 * number_of_candidates)) + winners - 1))
+
+    if number_of_candidates == 3:
+        return 2
+    else:
+        return floor(min(ideal_votes, votes_function))
+
+
+def irv(input_voters_rankings, number_of_candidates):
+    rankings_copy = input_voters_rankings.copy()
+    votes_for_candidates = [0] * number_of_candidates
+    winner_votes = -1
+    winner = 0
+
+    x = 0
+    while winner_votes < sum(votes_for_candidates)/2:
+        all_votes_storage = []
+        for i in rankings_copy:
+            all_votes_storage.append(rankings_copy[i][0])
+
+        votes_for_candidates = [0] * (number_of_candidates)
+        for i in range(1, number_of_candidates + 1):
+            for ii in all_votes_storage:
+                if ii == i:
+                    votes_for_candidates[i-1] += 1
+                else:
+                    pass
+
+        winner_votes = max(votes_for_candidates)
+        sorted_votes_for_candidates = votes_for_candidates.copy()
+        sorted_votes_for_candidates.sort()
+        loser_votes = sorted_votes_for_candidates[x]
+        loser = [iii for iii, j in enumerate(votes_for_candidates) if j == loser_votes]
+        loser = random.choice(loser)
+        loser += 1
+
+        for i in range(1, len(rankings_copy) + 1):
+            rankings_copy[i].remove(loser)
+
+        x += 1
+        winner = [iii for iii, j in enumerate(votes_for_candidates) if j == winner_votes]
+        winner = [y + 1 for y in winner]
+
+    return winner
+
