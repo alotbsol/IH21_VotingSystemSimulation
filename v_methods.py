@@ -301,16 +301,32 @@ def irv(input_voters_rankings, number_of_candidates):
         sorted_votes_for_candidates = votes_for_candidates.copy()
         sorted_votes_for_candidates.sort()
         loser_votes = sorted_votes_for_candidates[x]
-        loser = [iii for iii, j in enumerate(votes_for_candidates) if j == loser_votes]
-        loser = random.choice(loser)
-        loser += 1
 
-        for i in range(1, len(rankings_copy) + 1):
-            rankings_copy[i].remove(loser)
+        deleted_candidates = 0
+        if loser_votes == 0:
+            loser = [iii for iii, j in enumerate(votes_for_candidates) if j == loser_votes]
+            loser = [i + 1 for i in loser]
+            for i in loser:
+                print("deleting loser", i)
+                for ii in range(1, len(rankings_copy) + 1):
+                    try:
+                        rankings_copy[ii].remove(i)
+                        deleted_candidates += 1
+                        print("Succesfully deleted")
+                    except ValueError:
+                        print("there was a value error")
 
-        x += 1
+        else:
+            loser = [iii for iii, j in enumerate(votes_for_candidates) if j == loser_votes]
+            loser = random.choice(loser)
+            loser += 1
+
+            for i in range(1, len(rankings_copy) + 1):
+                rankings_copy[i].remove(loser)
+                deleted_candidates += 1
+
+        x += int(deleted_candidates/len(rankings_copy))
         winner = [iii for iii, j in enumerate(votes_for_candidates) if j == winner_votes]
         winner = [y + 1 for y in winner]
 
     return winner
-
