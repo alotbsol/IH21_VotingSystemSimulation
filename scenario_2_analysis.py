@@ -530,6 +530,11 @@ def eleven_candidates():
 
     df_utility = df_all.copy()
     df_utility = df_utility.loc[df_utility.Candidates == 11]
+
+    df_utility.loc[df_utility.Method == "Condorcet", 'Max Utility'] = \
+        df_utility.loc[df_utility.Method == "Condorcet", 'Max Utility'] / (
+                    1 - df_utility.loc[df_utility.Method == "Condorcet", 'C0chosen'])
+
     df_utility = pd.pivot_table(df_utility, values="Max Utility", index="Method", columns=['PDF'],
                                     aggfunc=np.mean)
 
