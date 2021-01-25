@@ -29,7 +29,7 @@ def scatter_bar(input_data, name, y_description):
         x += 1
         plt.annotate(round(np.mean(df.loc[i]), 2), xy=(i, (np.nanmax(df.loc[i]) + 0.02)), size=9, ha='center')
 
-    plt.legend([i for i in range(3, 12)], ncol=2, loc="lower right")
+    plt.legend([("C={0}".format(i)) for i in range(3, 12)], ncol=2, loc="lower right", title="LEGEND", prop={'size': 8})
     plt.locator_params(axis='y', nbins=10)
     plt.grid(linestyle='-')
     plt.xticks(rotation=90)
@@ -72,7 +72,12 @@ def scatter_bar_polarization_coloured(input_data, input_methods, name, y_descrip
             for iii in range(1, len(polarization_scenarios) + 1):
                 the_value = df.loc[methods[i]][ii][polarization_scenarios[iii-1]]
 
-                plt.scatter(-0.4 + i + iii*0.1, the_value, c=[colours_list((iii - 1) / len(polarization_scenarios))],
+                if iii == 4:
+                    use_this_color = [(0.80, 0.80, 0.80, 1.0)]
+                else:
+                    use_this_color = [colours_list((iii - 1) / len(polarization_scenarios))]
+
+                plt.scatter(-0.4 + i + iii*0.1, the_value, c=use_this_color,
                             zorder=3, s=25 + (dot_size * 20), alpha=0.5)
 
                 averages[iii-1].append(the_value)
@@ -93,7 +98,17 @@ def scatter_bar_polarization_coloured(input_data, input_methods, name, y_descrip
     plt.xticks(original_labels, methods)  # set labels manually
     plt.xticks(rotation=90)
     plt.tight_layout()
-    plt.legend(['Polarized', "", "", "Uniform", "", "", 'Medium'], ncol=1, loc=legend_position)
+    plt.legend(
+               ["", "", "", "", "", "", ""] +
+               ["", "", "", "", "", "", ""] +
+               ["", "", "", "", "", "", ""] +
+               ["", "", "", "", "", "", ""] +
+               ["", "", "", "", "", "", ""] +
+               ["", "", "", "", "", "", ""] +
+               ["", "", "", "", "", "", ""] +
+               ["", "", "", "", "", "", ""] +
+               ['C=3->11 Polarized', "C=3->11", "C=3->11", "C=3->11 Uniform", "C=3->11", "C=3->11", 'C=3->11 Medium'],
+               ncol=9, columnspacing=-1, loc=legend_position, title="LEGEND", prop={'size': 8})
 
     plt.savefig('{0}'.format(name), bbox_inches='tight', pad_inches=0.05)
     plt.clf()
@@ -110,7 +125,7 @@ def analyze_scenario_1():
     methods_fix_and_var_p = ["Plurality", "2Vote_Fix", "3Vote_Fix", "4Vote_Fix", "5Vote_Fix", "6Vote_Fix", "7Vote_Fix", "8Vote_Fix", "9Vote_Fix", "10Vote_Fix",
                     "2Vote_Var", "3Vote_Var", "4Vote_Var", "5Vote_Var", "6Vote_Var", "7Vote_Var", "8Vote_Var", "9Vote_Var", "10Vote_Var", "11Vote_Var"]
 
-    all_data = pd.read_excel("Scenario_1.xlsx", sheet_name="AllData", index_col=0)
+    all_data = pd.read_excel("Scenario_1.xls", sheet_name="AllData", index_col=0)
 
     # recalculate selected Condorcet data to show percentages only when Condorcet candidate exists
     for i in ['Max Utility', "C1chosen"]:
@@ -127,7 +142,7 @@ def analyze_scenario_1():
     for_graph_data = for_graph_data.reindex(used_methods)
 
     scatter_bar(input_data=for_graph_data, name="IC_Condorcet",
-                y_description="Frequency of selecting Condorcet winner")
+                y_description="Condorcet Efficiency")
 
     # GRAPH IC_Utility
     used_methods = methods_for_utility + methods_fix_and_var
@@ -138,7 +153,7 @@ def analyze_scenario_1():
     for_graph_data = for_graph_data.reindex(used_methods)
 
     scatter_bar(input_data=for_graph_data, name="IC_Utility",
-                y_description="Frequency of selecting highest utility candidate")
+                y_description="Utility Efficiency")
 
     # GRAPH Polarized Condorcet
     for_graph_data = pd.pivot_table(all_data, values="Condorcet", index="Method", columns=['Candidates', "PDF_type"],
@@ -152,7 +167,7 @@ def analyze_scenario_1():
             input_data=for_graph_data,
             input_methods=i,
             name="1Polarized_Condorcet{0}".format(names_list[x]),
-            y_description="Frequency of selecting Condorcet winner")
+            y_description="Condorcet Efficiency")
 
         x += 1
 
@@ -168,7 +183,7 @@ def analyze_scenario_1():
             input_data=for_graph_data,
             input_methods=i,
             name="1Polarized_Utility{0}".format(names_list[x]),
-            y_description="Frequency of selecting highest utility candidate")
+            y_description="Utility Efficiency")
 
         x += 1
 

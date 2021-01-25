@@ -307,14 +307,12 @@ def irv(input_voters_rankings, number_of_candidates):
             loser = [iii for iii, j in enumerate(votes_for_candidates) if j == loser_votes]
             loser = [i + 1 for i in loser]
             for i in loser:
-                print("deleting loser", i)
                 for ii in range(1, len(rankings_copy) + 1):
                     try:
                         rankings_copy[ii].remove(i)
                         deleted_candidates += 1
-                        print("Succesfully deleted")
                     except ValueError:
-                        print("there was a value error")
+                        pass
 
         else:
             loser = [iii for iii, j in enumerate(votes_for_candidates) if j == loser_votes]

@@ -93,7 +93,7 @@ class ConvexHull(object):
 
 class ClustersAndJarvis:
     def __init__(self, in_con, in_ut, name, scatter_alpha, annotation_alpha, second_center_size, limits, color_indexes=[],
-                 in_con_all=[], in_ut_all=[], legend_scatter="YES", labels_x_y={"x": "", "y": ""}, check_random="no"):
+                 in_con_all=[], in_ut_all=[], legend_scatter="YES", labels_x_y={"x": "", "y": ""}, check_random="no", expl_legend="yes"):
 
         self.df_con = in_con
         self.df_ut = in_ut
@@ -109,6 +109,8 @@ class ClustersAndJarvis:
         else:
             pass
 
+        self.expl_legend = expl_legend
+
         self.scenarios = list(self.df_con.keys())
         self.methods = list(self.df_con.index)
 
@@ -119,15 +121,15 @@ class ClustersAndJarvis:
 
         self.statistics_export = {}
         self.statistics_export["keys"] = ["Centre Condorcet", "Centre Utility", "Max dist", "STDEV dist", "Area",
-                                           "C3 CC", "C3 CU", "C3 Max", "C3 STDEV",
-                                           "C4 CC", "C4 CU", "C4 Max", "C4 STDEV",
-                                           "C5 CC", "C5 CU", "C5 Max", "C5 STDEV",
-                                           "C6 CC", "C6 CU", "C6 Max", "C6 STDEV",
-                                           "C7 CC", "C7 CU", "C7 Max", "C7 STDEV",
-                                           "C8 CC", "C8 CU", "C8 Max", "C8 STDEV",
-                                           "C9 CC", "C9 CU", "C9 Max", "C9 STDEV",
-                                           "C10 CC", "C10 CU", "C10 Max", "C10 STDEV",
-                                           "C11 CC", "C11 CU", "C11 Max", "C11 STDEV",
+                                           "C3 CC", "C3 CU", "C3 Max d", "C3 STDEV",
+                                           "C4 CC", "C4 CU", "C4 Max d", "C4 STDEV",
+                                           "C5 CC", "C5 CU", "C5 Max d", "C5 STDEV",
+                                           "C6 CC", "C6 CU", "C6 Max d", "C6 STDEV",
+                                           "C7 CC", "C7 CU", "C7 Max d", "C7 STDEV",
+                                           "C8 CC", "C8 CU", "C8 Max d", "C8 STDEV",
+                                           "C9 CC", "C9 CU", "C9 Max d", "C9 STDEV",
+                                           "C10 CC", "C10 CU", "C10 Max d", "C10 STDEV",
+                                           "C11 CC", "C11 CU", "C11 Max d", "C11 STDEV",
                                           ]
 
         self.name = name
@@ -171,12 +173,38 @@ class ClustersAndJarvis:
                 plt.scatter(self.df_con.loc[i][ii], self.df_ut.loc[i][ii],
                             c=[use_this_color], s=6 + ((nocandidates-2)*6), alpha=self.scatter_alpha, zorder=1)
 
+        # legend
+        if self.expl_legend == "yes":
+            x_v = 1
+            for i in [0.82, 0.84, 0.86, 0.88, 0.90, 0.92, 0.94, 0.96, 0.98]:
+                x_c = 0
+                for ii in [0.05, 0.07, 0.09, 0.11, 0.13, 0.15, 0.17]:
+                    plt.scatter(i, ii, c=[self.colours_list_2(x_c / 7)],
+                                zorder=3, s=6 + ((x_v)*6), alpha=self.scatter_alpha,)
+                    x_c += 1
+                x_v += 1
+
+            leg_props = dict(boxstyle='square', facecolor='white', alpha=0.3, pad=0.5)
+            plt.text(0.75, 0.198,
+                     r"                                 LEGEND"
+                     "\nIndex = 1 "
+                     "\n"
+                     "\n"
+                     "\n"
+                     "\n"
+                     "\n"
+                     "\nIndex = 0 " +
+                     "\n               C=3        ------------->       C=11",
+                      fontsize=8, ha='left', va='top', bbox=leg_props)
+        else:
+            pass
+
         # anotation to sides
         props = dict(boxstyle='square', edgecolor='none', facecolor='white', alpha=0.5)
 
         for i in self.picked_methods:
             plt.annotate(i, (min(self.df_con.loc[i]) - 0.015, min(self.df_ut.loc[i]) + 0.015), ha="right", size=10,
-                         weight='bold', verticalalignment='bottom', alpha=self.annotation_alpha, bbox = props)
+                         weight='bold', verticalalignment='bottom', alpha=self.annotation_alpha, bbox=props)
 
         plt.xlabel(self.labels_x_y["x"])
         plt.ylabel(self.labels_x_y["y"])
@@ -404,7 +432,7 @@ class ClustersAndJarvis:
 
 # figures - all scenarios
 def method_by_method_graphs():
-    df_all = pd.read_excel("Scenario_2.xlsx", sheet_name="AllData", index_col=0)
+    df_all = pd.read_excel("Scenario_2.xls", sheet_name="AllData", index_col=0)
 
     df_condorcet = pd.pivot_table(df_all, values="Condorcet", index="Method", columns=['PDF'],
                                     aggfunc=np.mean)
@@ -443,8 +471,8 @@ def method_by_method_graphs():
                                  second_center_size=25,
                                  color_indexes=["Plurality", "RunOff", "D21+", "D21-", "Approval", "IRV", "Maj judge 3", "Maj judge 5",
                                  "Maj judge 10", "Borda", "Range 3", "Range 5", "Range 10", "Condorcet", "Max Utility"],
-                                 labels_x_y={"x": "Frequency of selecting Condorcet winner",
-                                             "y": "Frequency of selecting highest utility candidate"})
+                                 labels_x_y={"x": "Condorcet Efficiency",
+                                             "y": "Utility Efficiency"})
 
         DoIt.scatter_only()
         DoIt.jarvis_fun()
@@ -458,7 +486,7 @@ def method_by_method_graphs():
 
 
 def condorcet_analysis():
-    df_all = pd.read_excel("Scenario_2.xlsx", sheet_name="AllData", index_col=0)
+    df_all = pd.read_excel("Scenario_2.xls", sheet_name="AllData", index_col=0)
 
     df_condorcet = df_all.copy()
     df_condorcet["C0chosen"] = 1 - df_condorcet["C0chosen"]
@@ -483,7 +511,8 @@ def condorcet_analysis():
                                  annotation_alpha=0,
                                  second_center_size=25,
                                  labels_x_y={"x": "Frequency of existence of Condorcet winner",
-                                             "y": "Frequency of Condorcet winner equal highest utlity winner"})
+                                             "y": "Frequency of Condorcet winner equal highest utlity winner"},
+                                 expl_legend="no")
         DoIt.scatter_only()
         DoIt.jarvis_fun()
         DoIt.centers_candidates()
@@ -492,7 +521,7 @@ def condorcet_analysis():
 
 
 def eleven_candidates():
-    df_all = pd.read_excel("Scenario_2.xlsx", sheet_name="AllData", index_col=0)
+    df_all = pd.read_excel("Scenario_2.xls", sheet_name="AllData", index_col=0)
 
     df_condorcet = df_all.copy()
     df_condorcet = df_condorcet.loc[df_condorcet.Candidates == 11]
@@ -517,8 +546,9 @@ def eleven_candidates():
                                  scatter_alpha=0.3,
                                  second_center_size=25,
                                  color_indexes=i,
-                                 labels_x_y={"x": "Frequency of selecting Condorcet winner",
-                                             "y": "Frequency of selecting highest utility candidate"})
+                                 labels_x_y={"x": "Condorcet Efficiency",
+                                             "y": "Utility Efficiency"},
+                                 expl_legend="no")
 
         DoIt.scatter_only_2()
         DoIt.jarvis_fun(default_color="no")
@@ -529,7 +559,7 @@ def eleven_candidates():
 
 
 def scatter_and_centers():
-    df_all = pd.read_excel("Scenario_2.xlsx", sheet_name="AllData", index_col=0)
+    df_all = pd.read_excel("Scenario_2.xls", sheet_name="AllData", index_col=0)
 
     df_condorcet = pd.pivot_table(df_all, values="Condorcet", index="Method", columns=['PDF'],
                                   aggfunc=np.mean)
@@ -551,8 +581,8 @@ def scatter_and_centers():
                                  scatter_alpha=0.075,
                                  second_center_size=25,
                                  color_indexes=i,
-                                 labels_x_y={"x": "Frequency of selecting Condorcet winner",
-                                             "y": "Frequency of selecting highest utility candidate"},
+                                 labels_x_y={"x": "Condorcet Efficiency",
+                                             "y": "Utility Efficiency"},
                                  check_random="YES")
 
         DoIt.scatter_only_2()
