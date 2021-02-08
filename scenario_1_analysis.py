@@ -35,7 +35,7 @@ def scatter_bar(input_data, name, y_description):
     plt.xticks(rotation=90)
     plt.tight_layout()
 
-    plt.savefig('{0}'.format(name), bbox_inches='tight', pad_inches=0.05)
+    plt.savefig('graphs/{0}'.format(name), bbox_inches='tight', pad_inches=0.05)
     plt.clf()
     plt.close()
 
@@ -110,7 +110,7 @@ def scatter_bar_polarization_coloured(input_data, input_methods, name, y_descrip
                ['C=3->11 Polarized', "C=3->11", "C=3->11", "C=3->11 Uniform", "C=3->11", "C=3->11", 'C=3->11 Medium'],
                ncol=9, columnspacing=-1, loc=legend_position, title="LEGEND", prop={'size': 8})
 
-    plt.savefig('{0}'.format(name), bbox_inches='tight', pad_inches=0.05)
+    plt.savefig('graphs/{0}'.format(name), bbox_inches='tight', pad_inches=0.05)
     plt.clf()
     plt.close()
 
@@ -125,7 +125,7 @@ def analyze_scenario_1():
     methods_fix_and_var_p = ["Plurality", "2Vote_Fix", "3Vote_Fix", "4Vote_Fix", "5Vote_Fix", "6Vote_Fix", "7Vote_Fix", "8Vote_Fix", "9Vote_Fix", "10Vote_Fix",
                     "2Vote_Var", "3Vote_Var", "4Vote_Var", "5Vote_Var", "6Vote_Var", "7Vote_Var", "8Vote_Var", "9Vote_Var", "10Vote_Var", "11Vote_Var"]
 
-    all_data = pd.read_excel("Scenario_1.xls", sheet_name="AllData", index_col=0)
+    all_data = pd.read_excel("data/Scenario_1.xlsx", sheet_name="AllData", index_col=0)
 
     # recalculate selected Condorcet data to show percentages only when Condorcet candidate exists
     for i in ['Max Utility', "C1chosen"]:

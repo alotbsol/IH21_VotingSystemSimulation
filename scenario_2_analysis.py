@@ -93,7 +93,7 @@ class ConvexHull(object):
 
 class ClustersAndJarvis:
     def __init__(self, in_con, in_ut, name, scatter_alpha, annotation_alpha, second_center_size, limits, color_indexes=[],
-                 in_con_all=[], in_ut_all=[], legend_scatter="YES", labels_x_y={"x": "", "y": ""}, check_random="no", expl_legend="yes"):
+                 in_con_all=[], in_ut_all=[], legend_scatter="YES", labels_x_y={"x": "", "y": ""}, check_random="no", expl_legend="yes", bbox_alpha=0.5):
 
         self.df_con = in_con
         self.df_ut = in_ut
@@ -134,6 +134,7 @@ class ClustersAndJarvis:
 
         self.name = name
         self.annotation_alpha = annotation_alpha
+        self.bbox_alpha = bbox_alpha
         self.second_center_size = second_center_size
         self.scatter_alpha = scatter_alpha
         self.limits = limits
@@ -200,7 +201,7 @@ class ClustersAndJarvis:
             pass
 
         # anotation to sides
-        props = dict(boxstyle='square', edgecolor='none', facecolor='white', alpha=0.5)
+        props = dict(boxstyle='square', edgecolor='none', facecolor='white', alpha=self.bbox_alpha)
 
         for i in self.picked_methods:
             plt.annotate(i, (min(self.df_con.loc[i]) - 0.015, min(self.df_ut.loc[i]) + 0.015), ha="right", size=10,
@@ -425,14 +426,14 @@ class ClustersAndJarvis:
         df.to_excel("Scenario_2_analysis_output.xlsx")
 
     def save_it(self):
-        plt.savefig('{0}'.format(self.name), bbox_inches='tight', pad_inches=0.05)
+        plt.savefig('graphs/{0}'.format(self.name), bbox_inches='tight', pad_inches=0.05)
         plt.clf()
         plt.close()
 
 
 # figures - all scenarios
 def method_by_method_graphs():
-    df_all = pd.read_excel("Scenario_2.xls", sheet_name="AllData", index_col=0)
+    df_all = pd.read_excel("data/Scenario_2.xlsx", sheet_name="AllData", index_col=0)
 
     df_condorcet = pd.pivot_table(df_all, values="Condorcet", index="Method", columns=['PDF'],
                                     aggfunc=np.mean)
@@ -486,7 +487,7 @@ def method_by_method_graphs():
 
 
 def condorcet_analysis():
-    df_all = pd.read_excel("Scenario_2.xls", sheet_name="AllData", index_col=0)
+    df_all = pd.read_excel("data/Scenario_2.xlsx", sheet_name="AllData", index_col=0)
 
     df_condorcet = df_all.copy()
     df_condorcet["C0chosen"] = 1 - df_condorcet["C0chosen"]
@@ -512,7 +513,8 @@ def condorcet_analysis():
                                  second_center_size=25,
                                  labels_x_y={"x": "Frequency of existence of Condorcet winner",
                                              "y": "Frequency of Condorcet winner equal highest utlity winner"},
-                                 expl_legend="no")
+                                 expl_legend="no",
+                                 bbox_alpha=0)
         DoIt.scatter_only()
         DoIt.jarvis_fun()
         DoIt.centers_candidates()
@@ -521,7 +523,7 @@ def condorcet_analysis():
 
 
 def eleven_candidates():
-    df_all = pd.read_excel("Scenario_2.xls", sheet_name="AllData", index_col=0)
+    df_all = pd.read_excel("data/Scenario_2.xlsx", sheet_name="AllData", index_col=0)
 
     df_condorcet = df_all.copy()
     df_condorcet = df_condorcet.loc[df_condorcet.Candidates == 11]
@@ -564,7 +566,7 @@ def eleven_candidates():
 
 
 def scatter_and_centers():
-    df_all = pd.read_excel("Scenario_2.xls", sheet_name="AllData", index_col=0)
+    df_all = pd.read_excel("Scenario_2.xlsx", sheet_name="AllData", index_col=0)
 
     df_condorcet = pd.pivot_table(df_all, values="Condorcet", index="Method", columns=['PDF'],
                                   aggfunc=np.mean)

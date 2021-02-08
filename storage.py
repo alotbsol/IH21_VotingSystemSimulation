@@ -97,7 +97,7 @@ class Storage:
         self.create_process()
 
     def export(self, start, end):
-        writer = pd.ExcelWriter("{0}.xlsx".format(self.name), engine="xlsxwriter")
+        writer = pd.ExcelWriter("data/{0}.xlsx".format(self.name), engine="xlsxwriter")
         df_all = pd.DataFrame.from_dict(self.statistics)
         df_all.to_excel(writer, sheet_name="AllData")
 

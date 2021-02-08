@@ -97,6 +97,7 @@ if __name__ == '__main__':
     Master_storage.export(start=start_time, end=end_time)
     print("export done")
 
+    print("graphic analysis starts")
     analyze_scenario_1()
     print("graphic analysis done")
 
