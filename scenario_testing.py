@@ -43,9 +43,9 @@ if __name__ == '__main__':
     print("calculation starts")
     start_time = datetime.now()
 
-    candidates_scenarios = [5, 7]
-    voters_scenarios = [5]
-    iterations = 24
+    candidates_scenarios = [7]
+    voters_scenarios = [12]
+    iterations = 21
 
     cpu_no = cpu_count()
 
